@@ -57,6 +57,7 @@ def orb_feature_matching(img1, img2):
         match_ratio = total_matches / min_features if min_features > 0 else 0
         inlier_ratio = inliers / total_matches if total_matches > 0 else 0
         similarity_score = match_ratio * inlier_ratio
+
         print(f"전체 매칭 수: {total_matches}")
         print(f"Inlier 수 (RANSAC): {inliers}")
         print(f"정규화된 매칭 비율: {match_ratio:.2f}")
@@ -128,8 +129,8 @@ def compare_all_images(yolo_data, images):
             f"Best Match Crop: {img1_file} vs {img2_file}"
         )
 
-        cv2.imshow("Best newmap image1", img1_best)
-        cv2.imshow("Best newmap image2", img2_best)
+        cv2.imshow("Top1 Newmap Image1", img1_best)
+        cv2.imshow("Top1 Newmap Image2", img2_best)
         cv2.waitKey(0)
     return best_pair
 
@@ -158,6 +159,7 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
     score_list = sorted(score_list, key=lambda x: x[0], reverse=True)[:2]
 
     result_images = []
+    print(f"\nFor oldmap: {img1_file} and {img2_file}")
     for i, (avg_score, old_file, bbox11, bbox21, bbox12, bbox22) in enumerate(score_list):
         print(f"\nTop {i+1} oldmap match: {old_file} (avg score: {avg_score:.4f})")
 
@@ -188,10 +190,8 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
     cv2.waitKey(0)
     return result_images
 
-
-
 # 경로 설정
-file_path = config["file_paths"]["file1"]
+file_path = config["file_paths"]["file5"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_path"]
 #csv_path = config["file_paths"]["file2"] + "/yolo/yolo_info.csv"
@@ -199,11 +199,11 @@ csv_path = config["filtered_csv_path"]
 yolo_data_csv = pd.read_csv(csv_path)
 df = load_csv(csv_path)
 
-n=1
+n=0
 select_newmap_images = select_timestamps_around_n(n)[1]
 select_oldmap_images = select_timestamps_around_n(n)[0]
 
 # 매칭 수행
-best_pair_final = compare_all_images(yolo_data_csv, select_newmap_images)
-best_oldmap_final = compare_best_with_oldmap(yolo_data_csv, best_pair_final, select_oldmap_images)
+best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)
+best_oldmap_final = compare_best_with_oldmap(yolo_data_csv, best_pair_final, select_newmap_images)
 

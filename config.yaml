@@ -1,6 +1,9 @@
 file_paths:
   file1: "/mnt/sda/coex_data/result_2024_11_22_144140_lifefourcut_3/"
   file2: "/mnt/sda/coex_data/track_fail/result_2025_02_07_104112_olens/"
+  file3: '/mnt/sda/coex_data/result_2025_02_21_115723_ProjectM_Fail/'
+  file4: '/mnt/sda/coex_data/result_2025_01_31_120429/'
+  file5: "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
 
 filtered_csv_path: "./yolo_info_filtered.csv"
 

@@ -29,7 +29,7 @@ def load_csv(csv_path):
     return df.sort_values("timestamp")
 
 # 주어진 범위에서 timestamp 초당 n개 추출
-def sample_timestamps(df, start, end, per_sec=10): # 3개 추출
+def sample_timestamps(df, start, end, per_sec=3): # 3개 추출
     print(f"\n샘플링 구간: {start:.6f} → {end:.6f}")
     if start >= end:
         print("⚠️ 시작과 끝이 같거나 잘못됨")
@@ -81,7 +81,7 @@ def select_timestamps_around_n(n):
             selected_before = sample_timestamps(df, prev_relocal, curr_fail)
     else:
         # events[0]이면: relocal이 없으므로 fail 전 2초 구간
-        selected_before = sample_timestamps(df, curr_fail - 5, curr_fail)
+        selected_before = sample_timestamps(df, curr_fail - 3, curr_fail)
 
     # 현재 relocal -> 다음 fail
     if curr_relocal is not None:
@@ -90,7 +90,7 @@ def select_timestamps_around_n(n):
             selected_after = sample_timestamps(df, curr_relocal, next_fail)
         else:
             # 마지막 이벤트면 relocal 이후 2초 구간
-            selected_after = sample_timestamps(df, curr_relocal, curr_relocal + 10)
+            selected_after = sample_timestamps(df, curr_relocal, curr_relocal + 3)
         
     print(f"\nOLD MAP SELECTED: {selected_before}")
     print(f"NEW MAP SELECTED: {selected_after}")
@@ -98,7 +98,7 @@ def select_timestamps_around_n(n):
     return selected_before, selected_after
 
 # 예시 실행
-n = 1
+n = 0
 select_timestamps_around_n(n)
 
 # 디버깅 코드

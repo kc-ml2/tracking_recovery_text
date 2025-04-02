@@ -23,7 +23,7 @@ def save_filtered_csv(filtered_data, path_to_output):
 
 
 # 파일 경로 설정
-csv_path = config["file_paths"]["file1"] + "/yolo/yolo_info.csv"
+csv_path = config["file_paths"]["file5"] + "/yolo/yolo_info.csv"
 save_path = config["filtered_csv_path"]
 
 # CSV 파일 로드
