@@ -1,137 +1,100 @@
 import pandas as pd
 import yaml
+from numpy import linspace
 
+# config 파일 로드
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
 timestamp_path = config["timestamp_path"]
+csv_path = config["filtered_csv_path"]
 
+# timestamp.txt 불러오기
+def load_tracking_events(timestamp_path):
+    events = []
+    with open(timestamp_path, "r") as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) == 2:
+                events.append((float(parts[0]), float(parts[1])))
+            elif len(parts) == 1:
+                events.append((float(parts[0]), None))
+    return events
 
-# 첫 new map이 시작되는 시점의 이미지 불러오기
-def load_newmap_first_image():
-    with open(timestamp_path, "r") as file:  # timestamp.txt 파일 불러오기
-        lines = file.readlines()
-
-    newmap_images = []  # new map의 시작 프레임 저장하는 배열
-    for line in lines:
-        parts = line.split()
-        if len(parts) > 1:
-            timestamp_2nd_column = parts[1]  # 2열
-            image_filename = timestamp_2nd_column + ".png"
-            newmap_images.append(image_filename)
-
-    if len(newmap_images) > 0:
-        first_newmap_image = newmap_images[0]
-        print(first_newmap_image)
-        return first_newmap_image
-    else:
-        raise ValueError("timestamp.txt에서 new map 이미지 정보를 찾을 수 없음")
-
-
-# 첫 old map이 끝나는 시점의 이미지 불러오기
-def load_oldmap_last_image():
-    with open(timestamp_path, "r") as file:  # timestamp.txt 파일 불러오기
-        lines = file.readlines()
-
-    oldmap_images = []
-    for line in lines:
-        parts = line.split()
-        if len(parts) > 1:
-            timestamp_2nd_column = parts[0]  # 1열
-            image_filename = timestamp_2nd_column + ".png"
-            oldmap_images.append(image_filename)
-
-    if len(oldmap_images) > 0:
-        last_oldmap_image = oldmap_images[0]
-        print(last_oldmap_image)
-        return last_oldmap_image
-    else:
-        raise ValueError("timestamp.txt에서 new map 이미지 정보를 찾을 수 없음")
-
-
-# csv 파일 로드
-def load_csv(file_path):
-    df = pd.read_csv(file_path, header=None, skiprows=1)  # 첫 번째 행이 컬럼명이 아니면 이 줄 수정
-    df.columns = ["image_filename", "x1", "y1", "x2", "y2", "conf"]
-    return df
-
-
-# new map의 시작 시점부터 동일한 초 단위에서 2개의 이미지를 균등하게 선택
-def select_newmap_images(df, first_newmap_image):
-    # 컬럼에 문자열이 아닌 값이 들어있는지 확인
-    df = df[df["image_filename"].str.endswith(".png")]  # 확장자로 필터링
-
-    # timestamp 변환
+# yolo_info_filtered.csv 불러오기
+def load_csv(csv_path):
+    df = pd.read_csv(csv_path)
     df["timestamp"] = df["image_filename"].apply(lambda x: float(x.split(".")[0]))
+    return df.sort_values("timestamp")
 
-    # new map 시작 시점을 기준으로 필터링
-    new_map_start_timestamp = float(first_newmap_image.rsplit(".", 1)[0])
-    df = df[
-        (df["timestamp"] >= new_map_start_timestamp) & (df["timestamp"] <= new_map_start_timestamp + 10)
-    ]  # 시작시간 이후 10초 이내의 데이터만 필터링
+# 주어진 범위에서 timestamp 초당 per_sec개 추출
+def sample_timestamps(df, start, end): 
+    per_sec = config["hyperparameters"]["frames_per_sec"]
 
-    # timestamp 기준으로 그룹화
-    grouped = df.drop_duplicates("image_filename").groupby(df["timestamp"].astype(int))
+    print(f"\n샘플링 구간: {start:.6f} → {end:.6f}")
+    if start >= end:
+        print("⚠️ 시작과 끝이 같거나 잘못됨")
+        return []
+    
+    duration = end - start
+    num_samples = int(duration * per_sec)
+    if num_samples < 1:
+        num_samples = 1
 
-    selected_newmap_images = []
-    for _, group in grouped:
-        group = group.sort_values("timestamp")
-        num_images = len(group)
+    # 1. 구간 내 timestamp 필터링
+    df["timestamp"] = df["image_filename"].apply(lambda x: float(x.rsplit(".", 1)[0]))
+    sub_df = df[(df["timestamp"] >= start) & (df["timestamp"] <= end)].copy()
+    sub_df = sub_df.sort_values("timestamp")
+    sub_df = sub_df.drop_duplicates("image_filename").sort_values("timestamp").reset_index(drop=True)
 
-        if num_images >= 2:
-            step = num_images / 2
-            indices = [round(i * step) for i in range(2)]
+    if sub_df.empty:
+        print("해당 구간에 이미지 없음")
+        return []
+
+    # 2. 고르게 분포된 index 추출
+    if len(sub_df) <= num_samples:
+        selected = sub_df["image_filename"].tolist()
+    else:
+        indices = linspace(0, len(sub_df) - 1, num_samples, dtype=int)
+        selected = sub_df.iloc[indices]["image_filename"].tolist()
+
+    print(f"선택된 {len(selected)}개:", selected)
+    return selected
+
+# n번째 old map, n+1번째 new map에서 이미지 선택
+def select_images(n, debug):
+    df = load_csv(csv_path)
+    events = load_tracking_events(timestamp_path)
+
+    selected_before = []
+    selected_after = []
+
+    # 현재 이벤트 존재 확인
+    if n >= len(events):
+        raise ValueError(f"n={n}은 이벤트 개수 {len(events)}보다 크거나 같음!")
+
+    curr_fail, curr_relocal = events[n]
+
+    # 이전 relocal -> 현재 fail
+    if n > 0:
+        prev_relocal = events[n - 1][1]
+        if prev_relocal is not None:
+            selected_before = sample_timestamps(df, prev_relocal, curr_fail)
+    else:
+        # events[0]이면: relocal이 없으므로 fail 전 2초 구간
+        selected_before = sample_timestamps(df, curr_fail - 5, curr_fail)
+
+    # 현재 relocal -> 다음 fail
+    if curr_relocal is not None:
+        if n < len(events) - 1:
+            next_fail = events[n + 1][0]
+            selected_after = sample_timestamps(df, curr_relocal, next_fail)
         else:
-            indices = list(range(num_images))  # 2개 이하라면 모두 선택
+            # 마지막 이벤트면 relocal 이후 2초 구간
+            selected_after = sample_timestamps(df, curr_relocal, curr_relocal + 10)
 
-        selected_newmap_images.extend(group.iloc[indices]["image_filename"].tolist())
+    if (debug==True):    
+        print(f"\nOLD MAP SELECTED: {selected_before}")
+        print(f"NEW MAP SELECTED: {selected_after}")
 
-    return selected_newmap_images
-
-
-# old map의 끝나는 시점부터 10초 전까지 동일한 초 단위에서 2개의 이미지를 균등하게 선택
-def select_oldmap_images(df, last_oldmap_image):
-    # 컬럼에 문자열이 아닌 값이 들어있는지 확인
-    df = df[df["image_filename"].str.endswith(".png")]  # 확장자로 필터링
-
-    # timestamp 변환
-    df["timestamp"] = df["image_filename"].apply(lambda x: float(x.split(".")[0]))
-
-    # old map 끝나는 시점을 기준으로 필터링
-    old_map_end_timestamp = float(last_oldmap_image.rsplit(".", 1)[0])
-    df = df[
-        (df["timestamp"] <= old_map_end_timestamp) & (df["timestamp"] >= old_map_end_timestamp - 10)
-    ]  # old map 끝나는 10초 전까지만 필터링
-
-    # timestamp 기준으로 그룹화
-    grouped = df.drop_duplicates("image_filename").groupby(df["timestamp"].astype(int))
-
-    selected_oldmap_images = []
-    for _, group in grouped:
-        group = group.sort_values("timestamp")
-        num_images = len(group)
-
-        if num_images >= 2:
-            step = num_images / 2
-            indices = [round(i * step) for i in range(2)]
-        else:
-            indices = list(range(num_images))  # 2개 이하라면 모두 선택
-
-        selected_oldmap_images.extend(group.iloc[indices]["image_filename"].tolist())
-
-    return selected_oldmap_images
-
-
-# CSV 파일 경로 설정
-file_path = config["filtered_csv_path"]
-df = load_csv(file_path)
-
-# 이미지 선택
-first_newmap_image = load_newmap_first_image()
-selected_newmap_images = select_newmap_images(df, first_newmap_image)
-
-last_oldmap_image = load_oldmap_last_image()
-selected_oldmap_images = select_oldmap_images(df, last_oldmap_image)
-
-print("Selected Images:", selected_oldmap_images)
-print("Selected Images:", selected_newmap_images)
+    return selected_before, selected_after
