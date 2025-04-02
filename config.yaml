@@ -1,10 +1,13 @@
-file_paths:
-  file1: "/mnt/sda/coex_data/result_2024_11_22_144140_lifefourcut_3/"
-  file2: "/mnt/sda/coex_data/track_fail/result_2025_02_07_104112_olens/"
-  file3: '/mnt/sda/coex_data/result_2025_02_21_115723_ProjectM_Fail/'
-  file4: '/mnt/sda/coex_data/result_2025_01_31_120429/'
-  file5: "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
+file_path:
+ "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
+  # "/mnt/sda/coex_data/result_2024_11_22_144140_lifefourcut_3/"
+  # "/mnt/sda/coex_data/track_fail/result_2025_02_07_104112_olens/"
 
 filtered_csv_path: "./yolo_info_filtered.csv"
 
 timestamp_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/timestamp.txt'
+
+hyperparameters:
+  conf_threshold: 0.2
+  frames_per_sec: 3
+

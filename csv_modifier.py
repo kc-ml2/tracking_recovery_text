@@ -14,7 +14,7 @@ def load_csv(path_to_csv):
 
 # conf 값이 0.5 이상인 행만 필터링
 def filter_conf(data):
-    return data[data["conf"] >= 0.2]
+    return data[data["conf"] >= config["hyperparameters"]["conf_threshold"]]
 
 
 # 필터링된 데이터를 새로운 파일로 저장
@@ -23,7 +23,7 @@ def save_filtered_csv(filtered_data, path_to_output):
 
 
 # 파일 경로 설정
-csv_path = config["file_paths"]["file5"] + "/yolo/yolo_info.csv"
+csv_path = config["file_path"] + "/yolo/yolo_info.csv"
 save_path = config["filtered_csv_path"]
 
 # CSV 파일 로드
