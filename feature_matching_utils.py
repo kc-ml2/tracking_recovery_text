@@ -31,16 +31,19 @@ def orb_feature_matching(img1, img2, debug):
     orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
     kp1, des1 = orb.detectAndCompute(img1, None)
     kp2, des2 = orb.detectAndCompute(img2, None)
+
     if des1 is None or des2 is None:
-        print("특징점이 충분하지 않음")
-        #print("img1 des: ", len(des1))
-        print("img1 des: ", des1)
-        print("img2 des: ", des2)
-        return kp1, kp2, None, None, 0, 0, 0, 0, 0
+        if debug == True:
+            print("특징점이 충분하지 않음")
+            #print("img1 des: ", len(des1))
+            print("img1 des: ", des1)
+            print("img2 des: ", des2)
+        return kp1, kp2, None, 0
+    
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
     matches = bf.match(des1, des2)
     matches = sorted(matches, key=lambda x: x.distance)
-    if len(matches) > 4:
+    if len(matches) > 50:
         src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
         _, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
@@ -60,12 +63,14 @@ def orb_feature_matching(img1, img2, debug):
             print(f"유사도 점수: {similarity_score:.4f}\n")
         return kp1, kp2, matches, similarity_score
     else:
-        print("매칭된 특징점 부족")
+        if (debug==True):
+            print("매칭된 특징점 부족")
         return kp1, kp2, matches, 0
 
 # 이미지 두 개를 비교해서 가장 유사한 bbox 쌍 찾기
-def compare_two_images(yolo_data, img1_file, img2_file):
-    print(f"Comparing {img1_file} and {img2_file}")
+def compare_two_images(yolo_data, img1_file, img2_file, debug):
+    if debug == True:
+        print(f"Comparing {img1_file} and {img2_file}")
     # 원본 이미지 읽어오기
     img1 = cv2.imread(img_dir + img1_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + img2_file, cv2.IMREAD_GRAYSCALE)
@@ -80,14 +85,16 @@ def compare_two_images(yolo_data, img1_file, img2_file):
             crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-            _, _, _, score = orb_feature_matching(crop1, crop2, True)
+            kp1, kp2, matches, score = orb_feature_matching(crop1, crop2, debug)
+            if debug==True:
+                visualize_matches(crop1, crop2, kp1, kp2, matches, f"two images crop match: {img1_file} vs {img2_file}")
             if score > highest_score:
                 highest_score = score
                 best_match = (img1_file, img2_file, bbox1, bbox2)
     return highest_score, best_match
 
 # bbox와 이미지를 비교해서 이미지의 가장 유사한 bbox 찾기
-def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file):
+def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, debug):
     img1 = cv2.imread(img_dir + bbox_img_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + target_img_file, cv2.IMREAD_GRAYSCALE)
 
@@ -102,8 +109,9 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file):
     for _, bbox2 in bboxes2.iterrows():
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-        _, _, _, score = orb_feature_matching(crop1, crop2, True)
-
+        kp1, kp2, matches, score = orb_feature_matching(crop1, crop2, debug)
+        if debug==True:
+            visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {bbox_img_file} vs {target_img_file}")
         if score > best_score:
             best_score = score
             best_bbox2 = bbox2

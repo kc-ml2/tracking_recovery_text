@@ -5,12 +5,12 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from image_selector import (
+from image_selector_utils import (
     load_csv,
     select_images
 )
 
-from utils import (
+from feature_matching_utils import (
     crop_fn,
     visualize_matches,
     orb_feature_matching,
@@ -18,16 +18,17 @@ from utils import (
     compare_bbox_with_image
 )
 
-# config 파일 로드
-with open("config.yaml", "r") as file:
+
+# config.yaml 파일 로드
+with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
 # new map 내에서 가장 유사한 이미지 쌍 k개 찾기
-def compare_all_images_topk(yolo_data, images, top_k=3):
+def compare_all_images(yolo_data, images, top_k=3):
     score_list = []
 
     for img1_file, img2_file in itertools.combinations(images, 2):
-        score, match = compare_two_images(yolo_data, img1_file, img2_file)
+        score, match = compare_two_images(yolo_data, img1_file, img2_file, True)
         if match:
             score_list.append((score, match))
 
@@ -68,8 +69,8 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
     print(f"Best new match: {img1_file} and {img2_file}")
 
     for old_file in oldmap_images:
-        score1, old_bbox1 = compare_bbox_with_image(yolo_data, bbox1, img1_file, old_file)
-        score2, old_bbox2 = compare_bbox_with_image(yolo_data, bbox2, img2_file, old_file)
+        score1, old_bbox1 = compare_bbox_with_image(yolo_data, bbox1, img1_file, old_file, True)
+        score2, old_bbox2 = compare_bbox_with_image(yolo_data, bbox2, img2_file, old_file, True)
 
         if old_bbox1 is not None and old_bbox2 is not None:
             avg_score = (score1 + score2) / 2
@@ -92,7 +93,7 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
         cropimg1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
         x1, y1, x2, y2 = map(int, [old_bbox1["x1"], old_bbox1["y1"], old_bbox1["x2"], old_bbox1["y2"]])
         cropold1 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches1, _ = orb_feature_matching(cropimg1, cropold1, True)
+        kp1, kp2, matches1, _= orb_feature_matching(cropimg1, cropold1, True)
         visualize_matches(cropimg1, cropold1, kp1, kp2, matches1, f"{img1_file} vs {old_file}")
 
         # crop & 매칭 for img2
@@ -100,7 +101,7 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
         cropimg2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
         x1, y1, x2, y2 = map(int, [old_bbox2["x1"], old_bbox2["y1"], old_bbox2["x2"], old_bbox2["y2"]])
         cropold2 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches2, _ = orb_feature_matching(cropimg2, cropold2, True)
+        kp1, kp2, matches2, _= orb_feature_matching(cropimg2, cropold2, True)
         visualize_matches(cropimg2, cropold2, kp1, kp2, matches2, f"{img2_file} vs {old_file}")
 
         cv2.imshow(f"Top{i+1} Oldmap Image", old)
@@ -123,7 +124,8 @@ select_newmap_images = select_images(n, True)[1]
 select_oldmap_images = select_images(n, True)[0]
 
 # 매칭 수행
-best_pair_main = compare_all_images_topk(yolo_data_csv, select_oldmap_images)
-
-for i in range(3):
-    best_oldmap_main = compare_best_with_oldmap(yolo_data_csv, best_pair_main[i], select_newmap_images)
+best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)
+for i in range(3): 
+    best_oldmap_final = compare_best_with_oldmap(yolo_data_csv, best_pair_final[0], select_newmap_images)
+    best_oldmap_final = compare_best_with_oldmap(yolo_data_csv, best_pair_final[1], select_newmap_images)
+    best_oldmap_final = compare_best_with_oldmap(yolo_data_csv, best_pair_final[2], select_newmap_images)

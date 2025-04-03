@@ -14,7 +14,7 @@ def load_csv(path_to_csv):
 
 # conf 값이 0.5 이상인 행만 필터링
 def filter_conf(data):
-    return data[data["conf"] >= config["hyperparameters"]["conf_threshold"]]
+    return data[data["conf"] >= config["hyperparameters"]["csv_conf_thresh"]]
 
 
 # 필터링된 데이터를 새로운 파일로 저장

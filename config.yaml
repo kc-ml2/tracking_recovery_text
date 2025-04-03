@@ -1,13 +1,24 @@
 file_path:
- "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
+  # "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
   # "/mnt/sda/coex_data/result_2024_11_22_144140_lifefourcut_3/"
   # "/mnt/sda/coex_data/track_fail/result_2025_02_07_104112_olens/"
+  # '/mnt/sda/coex_data/result_2025_01_31_120429/'
+  '/mnt/sda/coex_data/result_2025_02_21_115723_ProjectM_Fail/'
+  #'/mnt/sda/coex_data/result_2025_02_07_104112/'
+  # '/mnt/sda/coex_data/result_2025_02_21_121807_Crocs_Fail/'
+  
 
 filtered_csv_path: "./yolo_info_filtered.csv"
 
 timestamp_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/timestamp.txt'
 
 hyperparameters:
-  conf_threshold: 0.2
-  frames_per_sec: 3
+  csv_conf_thresh: 0.1
+
+  firstmap_thresh: 0.5
+  firstmap_min_time_diff: 0.0
+  nextmap_thresh: 0.0
+  
+  image_selector_frames_per_sec: 3
+  image_selector_max_interval: 3
 

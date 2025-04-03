@@ -5,12 +5,12 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from image_selector import (
+from image_selector_utils import (
     load_csv,
     select_images
 )
 
-from utils import (
+from feature_matching_utils import (
     crop_fn,
     visualize_matches,
     orb_feature_matching,
@@ -27,7 +27,7 @@ def compare_all_images(yolo_data, images):
     best_pair = None
 
     for img1_file, img2_file in itertools.combinations(images, 2):
-        score, match = compare_two_images(yolo_data, img1_file, img2_file)
+        score, match = compare_two_images(yolo_data, img1_file, img2_file, False)
         if score > best_score:
             best_score = score
             best_pair = match
@@ -70,8 +70,8 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
     print(f"Best new match: {img1_file} and {img2_file}")
 
     for old_file in oldmap_images:
-        score1, match1 = compare_two_images(yolo_data, img1_file, old_file)
-        score2, match2 = compare_two_images(yolo_data, img2_file, old_file)
+        score1, match1 = compare_two_images(yolo_data, img1_file, old_file, False)
+        score2, match2 = compare_two_images(yolo_data, img2_file, old_file, False)
 
         if match1 is not None and match2 is not None:
             avg_score = (score1 + score2) / 2
@@ -131,6 +131,6 @@ select_newmap_images = select_images(n, True)[1]
 select_oldmap_images = select_images(n, True)[0]
 
 # 매칭 수행
-best_pair_main= compare_all_images(yolo_data_csv, select_newmap_images)
-best_oldmap_main = compare_best_with_oldmap(yolo_data_csv, best_pair_main, select_oldmap_images)
+best_pair_main= compare_all_images(yolo_data_csv, select_oldmap_images)
+best_oldmap_main = compare_best_with_oldmap(yolo_data_csv, best_pair_main, select_newmap_images)
 

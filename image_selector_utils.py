@@ -29,11 +29,10 @@ def load_csv(csv_path):
 
 # 주어진 범위에서 timestamp 초당 per_sec개 추출
 def sample_timestamps(df, start, end): 
-    per_sec = config["hyperparameters"]["frames_per_sec"]
+    per_sec = config["hyperparameters"]["image_selector_frames_per_sec"]
 
-    print(f"\n샘플링 구간: {start:.6f} → {end:.6f}")
     if start >= end:
-        print("⚠️ 시작과 끝이 같거나 잘못됨")
+        print("시작과 끝이 같거나 잘못됨")
         return []
     
     duration = end - start
@@ -58,11 +57,11 @@ def sample_timestamps(df, start, end):
         indices = linspace(0, len(sub_df) - 1, num_samples, dtype=int)
         selected = sub_df.iloc[indices]["image_filename"].tolist()
 
-    print(f"선택된 {len(selected)}개:", selected)
     return selected
 
 # n번째 old map, n+1번째 new map에서 이미지 선택
 def select_images(n, debug):
+    max_interval = config["hyperparameters"]["image_selector_max_interval"]
     df = load_csv(csv_path)
     events = load_tracking_events(timestamp_path)
 
@@ -79,19 +78,19 @@ def select_images(n, debug):
     if n > 0:
         prev_relocal = events[n - 1][1]
         if prev_relocal is not None:
-            selected_before = sample_timestamps(df, prev_relocal, curr_fail)
+            selected_before = sample_timestamps(df, max(prev_relocal, curr_fail - 3) , curr_fail)
     else:
-        # events[0]이면: relocal이 없으므로 fail 전 2초 구간
-        selected_before = sample_timestamps(df, curr_fail - 3, curr_fail)
+        # events[0]이면: relocal이 없으므로 fail 전 3초 구간
+        selected_before = sample_timestamps(df, curr_fail - max_interval, curr_fail)
 
     # 현재 relocal -> 다음 fail
     if curr_relocal is not None:
         if n < len(events) - 1:
             next_fail = events[n + 1][0]
-            selected_after = sample_timestamps(df, curr_relocal, next_fail)
+            selected_after = sample_timestamps(df, curr_relocal, min(next_fail, curr_relocal + 3))
         else:
-            # 마지막 이벤트면 relocal 이후 2초 구간
-            selected_after = sample_timestamps(df, curr_relocal, curr_relocal + 10)
+            # 마지막 이벤트면 relocal 이후 3초 구간
+            selected_after = sample_timestamps(df, curr_relocal, curr_relocal + max_interval)
 
     if (debug==True):    
         print(f"\nOLD MAP SELECTED: {selected_before}")
