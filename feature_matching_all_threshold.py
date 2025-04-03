@@ -144,6 +144,15 @@ if results:
     print("\n4 images for triangulation:")
     print(f"Firstmap: {best_result[1][0][1]}, {best_result[1][0][2]}")
     print(f"Nextmap: {best_result[1][0][5]}, {best_result[1][1][5]}")
+    bbox3 = best_result[1][0][6]
+    bbox4 = best_result[1][1][7]
+
+    # triangulation용 정보 저장
+    with open("triangulation_input.txt", "w") as f:
+        f.write(f"{best_result[1][0][1]} {bbox1['x1']},{bbox1['y1']},{bbox1['x2']},{bbox1['y2']}\n")
+        f.write(f"{best_result[1][0][2]} {bbox2['x1']},{bbox2['y1']},{bbox2['x2']},{bbox2['y2']}\n")
+        f.write(f"{best_result[1][0][5]} {bbox3['x1']},{bbox3['y1']},{bbox3['x2']},{bbox3['y2']}\n")
+        f.write(f"{best_result[1][1][5]} {bbox4['x1']},{bbox4['y1']},{bbox4['x2']},{bbox4['y2']}\n")
 
 else:
     print("전체 비교 결과에서 시각화할 대상이 없어요.")
