@@ -5,12 +5,12 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from image_selector_utils import (
+from utils_image_selector import (
     load_csv,
     select_images
 )
 
-from feature_matching_utils import (
+from utils_feature_matching import (
     crop_fn,
     visualize_matches,
     orb_feature_matching,
