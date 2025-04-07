@@ -112,7 +112,7 @@ if results:
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
 
-            kp1, kp2, matches, _ = orb_feature_matching(crop1, crop2, False)
+            kp1, kp2, matches, _, _, _= orb_feature_matching(crop1, crop2, False)
 
             print(f"\nFirstmap match: {img1_file}, {img2_file} (score: {firstmap_score:.4f})")
             visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {img1_file} vs {img2_file}")
@@ -127,7 +127,7 @@ if results:
         crop_old1 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
         x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
         crop_img1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches1, _ = orb_feature_matching(crop_img1, crop_old1, True)
+        kp1, kp2, matches1, _, _, _= orb_feature_matching(crop_img1, crop_old1, True)
         visualize_matches(crop_img1, crop_old1, kp1, kp2, matches1, f"Firstmap image1 vs Nextmap image{idx} crop match: {img1_file} vs {old_file}")
 
         # img2 vs old
@@ -135,7 +135,7 @@ if results:
         crop_old2 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop_img2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches2, _ = orb_feature_matching(crop_img2, crop_old2, True)
+        kp1, kp2, matches2, _, _, _= orb_feature_matching(crop_img2, crop_old2, True)
         visualize_matches(crop_img2, crop_old2, kp1, kp2, matches2, f"Firstmap image2  vs Nextmap image{idx} crop match: {img2_file} vs {old_file}")
 
         cv2.imshow(f"Nextmap image{idx}: {old_file}", old)

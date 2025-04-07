@@ -61,11 +61,11 @@ def orb_feature_matching(img1, img2, debug):
             print(f"정규화된 매칭 비율: {match_ratio:.2f}")
             print(f"Inlier 비율: {inlier_ratio:.2f}")
             print(f"유사도 점수: {similarity_score:.4f}\n")
-        return kp1, kp2, matches, similarity_score
+        return kp1, kp2, matches, des1, des2, similarity_score
     else:
         if (debug==True):
             print("매칭된 특징점 부족")
-        return kp1, kp2, matches, 0
+        return kp1, kp2, matches, des1, des2, 0
 
 # 이미지 두 개를 비교해서 가장 유사한 bbox 쌍 찾기
 def compare_two_images(yolo_data, img1_file, img2_file, debug):
@@ -85,7 +85,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug):
             crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-            kp1, kp2, matches, score = orb_feature_matching(crop1, crop2, debug)
+            kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
             if debug==True:
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"two images crop match: {img1_file} vs {img2_file}")
             if score > highest_score:
@@ -109,7 +109,7 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
     for _, bbox2 in bboxes2.iterrows():
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches, score = orb_feature_matching(crop1, crop2, debug)
+        kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
         if debug==True:
             visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {bbox_img_file} vs {target_img_file}")
         if score > best_score:
