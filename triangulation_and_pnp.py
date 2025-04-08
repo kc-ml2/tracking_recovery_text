@@ -40,13 +40,19 @@ R2 = np.eye(3)
 t2 = np.zeros((3, 1))
 
 # Triangulation
-pts3d, pts1, pts2, used_kp1_corrected, used_kp2_corrected, R3, t3 = triangulate(img2, img3, bbox2, bbox3)
-print(f"R3 = {R3.T}")
+pts3d, pts1, pts2, des1_used, des2_used, used_kp1_corrected, used_kp2_corrected, R3, t3 = triangulate(img2, img3, bbox2, bbox3)
+print(f"\nR3 = {R3}")
 print(f"t3 = {t3.T}")
 
-pts3d_2, pts1, pts2, used_kp1_corrected, used_kp2_corrected, R4, t4 = triangulate(img2, img4, bbox2, bbox4)
-print(f"R4 = {R4.T}")
-print(f"t4 = {t4.T}")
+# _, _, _, _, _, _, _, R1, t1 = triangulate(img3, img1, bbox3, bbox1)
+# print(f"\nR1 = {R1}")
+# print(f"t1 = {t1.T}")
+
+# _, _, _, _, _, _, _, R4, t4 = triangulate(img2, img4, bbox2, bbox4)
+# R4 = R4 @ R3
+# t4 = t4 + t3
+# print(f"\nR4 = {R4}")
+# print(f"t4 = {t4.T}")
 
 # # Triangulation Debug
 # # 1. depths 값 확인
@@ -77,15 +83,15 @@ print(f"t4 = {t4.T}")
 # cv2.waitKey(0)
 
 # PnP
-# rvec4, t4, vis4 = estimate_pose(img4, bbox4, pts3d, used_kp2_corrected, img3)
-# R4, _ = cv2.Rodrigues(rvec4)
-# print(f"\nR4 = {R4}")
-# print(f"t4 = {t4.T}")
+rvec4, t4, vis4 = estimate_pose(img4, bbox4, pts3d, des1_used, used_kp1_corrected, img2)
+R4, _ = cv2.Rodrigues(rvec4)
+print(f"\nR4 = {R4}")
+print(f"t4 = {t4.T}")
 
-rvec1, t1, vis1= estimate_pose(img3, bbox3, pts3d, used_kp1_corrected, img2)
-R1, _ = cv2.Rodrigues(rvec1)
-print(f"\nR1 = {R1}")
-print(f"t1 = {t1.T}")
+# rvec1, t1, vis1 = estimate_pose(img1, bbox1, pts3d, des1_used, used_kp1_corrected, img2)
+# R1, _ = cv2.Rodrigues(rvec1)
+# print(f"\nR1 = {R1}")
+# print(f"t1 = {t1.T}")
 
 # PnP Debug
 # visualize all images
@@ -113,13 +119,39 @@ cam2_pos = camera_position(R2, t2).flatten()
 cam3_pos = camera_position(R3, t3).flatten()
 cam4_pos = camera_position(R4, t4).flatten()
 
-# 시각화
+# ----------------------- Triangulation 시각화 --------------------------
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
 # 1)3D 포인트
 ax.scatter(pts3d[:, 0], pts3d[:, 1], pts3d[:, 2], c='cyan', s=10, label='Triangulated 3D Points')
-ax.scatter(pts3d_2[:, 0], pts3d_2[:, 1], pts3d_2[:, 2], c='purple', s=10, label='Triangulated 3D Points')
+
+# 2)카메라 위치
+#ax.scatter(*cam1_pos, c='red', s=50, label='Camera 1 (img1)')
+ax.scatter(*cam2_pos, c='orange', s=50, label='Camera 2 (img2)')
+ax.scatter(*cam3_pos, c='blue', s=50, label='Camera 3 (img3)')
+#ax.scatter(*cam4_pos, c='green', s=50, label='Camera 4 (img4)')
+
+cam_positions = np.array([cam2_pos, cam3_pos])
+ax.plot(cam_positions[:, 0], cam_positions[:, 1], cam_positions[:, 2], c='black', linewidth=2, label='Camera Path')
+
+# 축 라벨 및 시점 설정
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+ax.set_title("Triangulated 3D Points + 2Camera Positions")
+ax.view_init(elev=20, azim=-60)
+
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# -------------------------- Triangulation + PnP 시각화 ------------------------------------
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# 1)3D 포인트
+ax.scatter(pts3d[:, 0], pts3d[:, 1], pts3d[:, 2], c='cyan', s=10, label='Triangulated 3D Points')
 
 # 2)카메라 위치
 ax.scatter(*cam1_pos, c='red', s=50, label='Camera 1 (img1)')
@@ -127,11 +159,14 @@ ax.scatter(*cam2_pos, c='orange', s=50, label='Camera 2 (img2)')
 ax.scatter(*cam3_pos, c='blue', s=50, label='Camera 3 (img3)')
 ax.scatter(*cam4_pos, c='green', s=50, label='Camera 4 (img4)')
 
+cam_positions = np.array([cam1_pos, cam2_pos, cam3_pos, cam4_pos])
+ax.plot(cam_positions[:, 0], cam_positions[:, 1], cam_positions[:, 2], c='black', linewidth=2, label='Camera Path')
+
 # 축 라벨 및 시점 설정
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
-ax.set_title("Triangulated 3D Points + Camera Positions")
+ax.set_title("Triangulated 3D Points + 4 Camera Positions")
 ax.view_init(elev=20, azim=-60)
 
 plt.legend()

@@ -41,8 +41,17 @@ def orb_feature_matching(img1, img2, debug):
         return kp1, kp2, None, 0
     
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    # knn_matches = bf.knnMatch(des1, des2, k=2)
+    # good_matches = []
+    # for m, n in knn_matches:
+    #     if m.distance < 0.75 * n.distance:
+    #         good_matches.append(m)
+    # matches = sorted(good_matches, key=lambda x: x.distance)
+
     matches = bf.match(des1, des2)
     matches = sorted(matches, key=lambda x: x.distance)
+
     if len(matches) > 50:
         src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)

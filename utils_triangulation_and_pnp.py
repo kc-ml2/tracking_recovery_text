@@ -38,44 +38,81 @@ def load_input(file_path):
 
 # triangulation 함수
 def triangulate(img1, img2, bbox1, bbox2):
+    # 이미지 자르기
     crop1 = crop_fn(img1, bbox1[0], bbox1[1], bbox1[2] - bbox1[0], bbox1[3] - bbox1[1], expand=30)
     crop2 = crop_fn(img2, bbox2[0], bbox2[1], bbox2[2] - bbox2[0], bbox2[3] - bbox2[1], expand=30)
 
-    kp1, kp2, matches, _, _, _ = orb_feature_matching(crop1, crop2, False)
-
+    # crop끼리 매칭
+    kp1, kp2, matches, des1, des2, _ = orb_feature_matching(crop1, crop2, False)
     if len(matches) < 8:
         raise ValueError("Not enough matches for triangulation")
 
-    # crop 영역 좌표를 원래 이미지 기준으로 보정
+    # crop의 모든 키포인트의 원본 이미지 좌표 추출
     expand = 30 
     pts1_all = np.float32([kp1[m.queryIdx].pt for m in matches]) + np.array([bbox1[0] - expand, bbox1[1] - expand]) # 매칭점들의 전체 이미지 기준 2D 좌표
     pts2_all = np.float32([kp2[m.trainIdx].pt for m in matches]) + np.array([bbox2[0] - expand, bbox2[1] - expand])
 
-    # RANSAC 필터링
-    E, mask = cv2.findEssentialMat(pts1_all, pts2_all, K, method=cv2.RANSAC, threshold=1.0, prob=0.999)
-    _, R, t, pose_mask = cv2.recoverPose(E, pts1_all, pts2_all, K, mask=mask)
+    # # option 1) 에피폴라 제약조건 만족하는 E 구하고 RANSAC 필터링
+    # E, mask = cv2.findEssentialMat(pts1_all, pts2_all, K, method=cv2.RANSAC, threshold=1.0, prob=0.999) # mask: inlier/outlier 나타내는 마스크
+    # _, R, t, pose_mask = cv2.recoverPose(E, pts1_all, pts2_all, K, mask=mask)
 
-    # Inlier만 필터링
+    # option 2) Homography
+    H, mask = cv2.findHomography(pts1_all, pts2_all, method=cv2.RANSAC, ransacReprojThreshold=3.0)
+    if H is None or mask is None:
+        raise ValueError("Homography estimation failed")
+    pose_mask = mask.astype(bool).ravel()
+
+    # Homography 분해
+    num_solutions, Rs, Ts, _ = cv2.decomposeHomographyMat(H, K)
+
+    # 가장 많은 삼각측량 가능한 조합 선택
+    best_idx = -1
+    max_front_pts = -1
+    P1 = np.hstack((np.eye(3), np.zeros((3,1))))
+    pts1_norm = cv2.undistortPoints(pts1_all.reshape(-1,1,2), K, None)
+    pts2_norm = cv2.undistortPoints(pts2_all.reshape(-1,1,2), K, None)
+
+    for i in range(num_solutions):
+        R_candidate = Rs[i]
+        t_candidate = Ts[i]
+        P2 = np.hstack((R_candidate, t_candidate))
+        pts4d = cv2.triangulatePoints(P1, P2, pts1_norm, pts2_norm)
+        pts4d /= pts4d[3]
+        z1 = pts4d[2]
+        z2 = (R_candidate[2] @ pts4d[:3]) + t_candidate[2]
+        front = (z1 > 0) & (z2 > 0)
+        num_front = np.sum(front)
+        if num_front > max_front_pts:
+            max_front_pts = num_front
+            best_idx = i
+
+    # 최종 선택된 R, t
+    R = Rs[best_idx]
+    t = Ts[best_idx]
+    
+    # 최종 유효한 Inlier들만 필터링
     inliers1 = pts1_all[pose_mask.ravel() == 1]
     inliers2 = pts2_all[pose_mask.ravel() == 1]
-    inlier_matches = [matches[i] for i in range(len(matches)) if pose_mask.ravel()[i] == 1]
+    inlier_matches = [matches[i] for i in range(len(matches)) if pose_mask.ravel()[i] == 1] # matches는 설명자 매칭
 
-    pts1 = np.float32([kp1[m.queryIdx].pt for m in inlier_matches]) + np.array([bbox1[0] - expand, bbox1[1] - expand])
-    pts2 = np.float32([kp2[m.trainIdx].pt for m in inlier_matches]) + np.array([bbox2[0] - expand, bbox2[1] - expand])
+    pts1 = np.float32([kp1[m.queryIdx].pt for m in inlier_matches]) + np.array([bbox1[0] - expand, bbox1[1] - expand]) # inlier_matches의 원본 이미지에 대한 좌표
+    pts2 = np.float32([kp2[m.trainIdx].pt for m in inlier_matches]) + np.array([bbox2[0] - expand, bbox2[1] - expand]) 
+    des1_used = np.array([des1[m.queryIdx] for m in inlier_matches])
+    des2_used = np.array([des2[m.trainIdx] for m in inlier_matches])
 
     if len(inliers1) < 8 or len(inliers2) < 8:
         raise ValueError("Not enough inliers after RANSAC")
     
     # Triangulate with inliers
-    P1 = np.hstack((np.eye(3), np.zeros((3, 1))))
+    P1 = np.hstack((np.eye(3), np.zeros((3, 1)))) # 두 카메라 위치
     P2 = np.hstack((R, t))
-    pts1_norm = cv2.undistortPoints(inliers1.reshape(-1,1,2), K, None)
+    pts1_norm = cv2.undistortPoints(inliers1.reshape(-1,1,2), K, None) # 픽셀 좌표인 inliers1을 정규화된 카메라 좌표계로 변환
     pts2_norm = cv2.undistortPoints(inliers2.reshape(-1,1,2), K, None)
 
     pts_4d = cv2.triangulatePoints(P1, P2, pts1_norm, pts2_norm)
     pts_3d = (pts_4d[:3] / pts_4d[3]).T
 
-    used_kp1 = [kp1[m.queryIdx] for m in inlier_matches]
+    used_kp1 = [kp1[m.queryIdx] for m in inlier_matches] # crop 기준 좌표
     used_kp2 = [kp2[m.trainIdx] for m in inlier_matches]
 
     expand = 30
@@ -101,29 +138,31 @@ def triangulate(img1, img2, bbox1, bbox2):
         )
         used_kp2_corrected.append(new_kp)
 
-    return pts_3d, pts1, pts2, used_kp1_corrected, used_kp2_corrected, R, t
+    # visualize_matches(img1, img2, kp1, kp2, inlier_matches, title="Feature Matching")
+    # print(len(used_kp1_corrected))
+    # print(len(used_kp2_corrected))
 
+    return pts_3d, pts1, pts2, des1_used, des2_used, used_kp1_corrected, used_kp2_corrected, R, t # img1에 대한 3d점, img1에 대한 유효한 매칭점 좌표, img2~, img1에 대한 유효한 매칭 keypoint의 모든 객체(설명자 등), img2~, img1에 대한 img2의 R, t
 
 # estimate_pose 함수
-def estimate_pose(img, bbox, pts3d, used_kp1_corrected, ref_img):
+def estimate_pose(img, bbox, pts3d, des1_used, used_kp1_corrected, ref_img):
     # 1. crop된 이미지에서 feature 추출
     crop = crop_fn(img, bbox[0], bbox[1], bbox[2] - bbox[0], bbox[3] - bbox[1], expand=30)
-    orb = cv2.ORB_create(1000)
+    orb = cv2.ORB_create(5000)
     kp2, des2 = orb.detectAndCompute(crop, None)
 
     # 2. reference 이미지에서 used_kp1_corrected의 descriptor 계산
-    des1 = orb.compute(ref_img, used_kp1_corrected)[1]
-
-    if des1 is None or len(des1) != len(used_kp1_corrected):
-        raise ValueError("Descriptor extraction failed for used_kp1_corrected")
+    # des1 = orb.compute(ref_img, used_kp1_corrected)[1]
+    # if des1 is None or len(des1) != len(used_kp1_corrected):
+    #     raise ValueError("Descriptor extraction failed for used_kp1_corrected")
 
     # 3. 매칭
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = sorted(bf.match(des1, des2), key=lambda x: x.distance)
+    matches = sorted(bf.match(des1_used, des2), key=lambda x: x.distance)
 
+    # print(len(matches))
     if len(matches) < 6:
         raise ValueError("Not enough matches between reference and target")
-
     if des2 is None or len(kp2) < 10:
         raise ValueError("Not enough keypoints detected in new image")
 
@@ -141,7 +180,7 @@ def estimate_pose(img, bbox, pts3d, used_kp1_corrected, ref_img):
         )
         kp2_corrected.append(new_kp)
 
-    # 1~4 Debug
+    # # 1~4 Debug
     # img_vis = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     # for kp in kp2_corrected:
     #     pt = tuple(np.round(kp.pt).astype(int))
@@ -150,16 +189,30 @@ def estimate_pose(img, bbox, pts3d, used_kp1_corrected, ref_img):
     # cv2.waitKey(0)
     # visualize_matches(ref_img, img, used_kp1_corrected, kp2_corrected, matches, title="Feature Matching")
 
-    # 5. match 기반 2D-3D correspondence
-    pts2d = [] # 2D
-    object_pts = [] # 3D
-    for m in matches:
+    # # 5. match 기반 2D-3D correspondence
+    # pts2d = [] # 2D
+    # object_pts = [] # 3D
+    # for m in matches:
+    #     pt2 = kp2_corrected[m.trainIdx].pt 
+    #     pts2d.append(pt2)
+    #     object_pts.append(pts3d[m.queryIdx]) 
+    # pts2d = np.float32(pts2d)
+    # object_pts = np.float32(object_pts)
+
+    # 5. 정확히 matches[i] ↔ pts3d[i] 대응된다고 보고 enumerate로 처리
+    pts2d = []
+    object_pts = []
+
+    for i, m in enumerate(matches):
         pt2 = kp2_corrected[m.trainIdx].pt
         pts2d.append(pt2)
-        object_pts.append(pts3d[m.queryIdx])
-
+        object_pts.append(pts3d[i])  # ← 안전하게 대응
+    
     pts2d = np.float32(pts2d)
     object_pts = np.float32(object_pts)
+
+    # print(len(pts2d))
+    # print(len(object_pts))
 
     # 6. PnP
     success, rvec, tvec, inliers = cv2.solvePnPRansac(
