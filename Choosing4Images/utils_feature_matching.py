@@ -38,7 +38,7 @@ def orb_feature_matching(img1, img2, debug):
             #print("img1 des: ", len(des1))
             print("img1 des: ", des1)
             print("img2 des: ", des2)
-        return kp1, kp2, None, 0
+        return kp1, kp2, None, None, None, 0
     
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 

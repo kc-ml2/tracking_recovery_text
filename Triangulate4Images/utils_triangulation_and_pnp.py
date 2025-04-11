@@ -213,6 +213,7 @@ def estimate_pose(img, bbox, pts3d, des1_used, used_kp1_corrected, ref_img):
 
     # print(len(pts2d))
     # print(len(object_pts))
+    print(f"\n[DEBUG] Number of 2dpoints: {len(pts2d)}")
 
     # 6. PnP
     success, rvec, tvec, inliers = cv2.solvePnPRansac(
@@ -225,7 +226,7 @@ def estimate_pose(img, bbox, pts3d, des1_used, used_kp1_corrected, ref_img):
     if not success or inliers is None or len(inliers) < 6:
         raise RuntimeError("PnP RANSAC failed or not enough inliers")
 
-    print(f"\n[DEBUG] PnP inliers: {len(inliers) if inliers is not None else 0}")
+    print(f"[DEBUG] PnP inliers: {len(inliers) if inliers is not None else 0}")
 
     # 7. 시각화 (inlier만 사용)
     inlier_idx = inliers.ravel()

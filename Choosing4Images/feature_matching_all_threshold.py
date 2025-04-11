@@ -68,6 +68,7 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_path"]
+triangulation_input_path = config["triangulation_input_path"]
 
 # 데이터 불러오기
 yolo_data_csv = pd.read_csv(csv_path)
@@ -148,7 +149,7 @@ if results:
     bbox4 = best_result[1][1][7]
 
     # triangulation용 정보 저장
-    with open("triangulation_input.txt", "w") as f:
+    with open(triangulation_input_path, "w") as f:
         f.write(f"{best_result[1][0][1]} {bbox1['x1']},{bbox1['y1']},{bbox1['x2']},{bbox1['y2']}\n")
         f.write(f"{best_result[1][0][2]} {bbox2['x1']},{bbox2['y1']},{bbox2['x2']},{bbox2['y2']}\n")
         f.write(f"{best_result[1][0][5]} {bbox3['x1']},{bbox3['y1']},{bbox3['x2']},{bbox3['y2']}\n")

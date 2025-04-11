@@ -17,6 +17,7 @@ with open("config.yaml", "r", encoding="utf-8") as file:
 # Load paths
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
+triangulation_input_path = config["triangulation_input_path"]
 
 # Intrinsic parameter matrix
 K = np.array([[641.136535, 0, 656.977416],
@@ -24,7 +25,7 @@ K = np.array([[641.136535, 0, 656.977416],
               [0, 0, 1]], dtype=np.float32)
 
 # Load bbox information
-entries = load_input("triangulation_input.txt")
+entries = load_input(triangulation_input_path)
 
 # Load 4 images
 img1 = cv2.imread(img_dir + entries[0][0], cv2.IMREAD_GRAYSCALE) # firstmap image 1
@@ -88,10 +89,10 @@ R4, _ = cv2.Rodrigues(rvec4)
 print(f"\nR4 = {R4}")
 print(f"t4 = {t4.T}")
 
-# rvec1, t1, vis1 = estimate_pose(img1, bbox1, pts3d, des1_used, used_kp1_corrected, img2)
-# R1, _ = cv2.Rodrigues(rvec1)
-# print(f"\nR1 = {R1}")
-# print(f"t1 = {t1.T}")
+rvec1, t1, vis1 = estimate_pose(img1, bbox1, pts3d, des1_used, used_kp1_corrected, img2)
+R1, _ = cv2.Rodrigues(rvec1)
+print(f"\nR1 = {R1}")
+print(f"t1 = {t1.T}")
 
 # PnP Debug
 # visualize all images
