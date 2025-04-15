@@ -9,7 +9,6 @@ with open("config.yaml", "r", encoding="utf-8") as file:
 # 경로 설정
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
-csv_path = config["filtered_csv_path"]
 
 # bbox 기준으로 이미지 crop
 def crop_fn(image, x, y, w, h, expand=0):
@@ -24,7 +23,7 @@ def crop_fn(image, x, y, w, h, expand=0):
 def visualize_matches(img1, img2, kp1, kp2, matches, title="Feature Matching"):
     img_match = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv2.imshow(title, img_match)
-    cv2.waitKey(0)
+    cv2.waitKey(500)
 
 # ORB 매칭 및 유사도 점수 계산
 def orb_feature_matching(img1, img2, debug):

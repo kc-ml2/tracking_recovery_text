@@ -7,18 +7,21 @@ with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
 timestamp_path = config["timestamp_path"]
-csv_path = config["filtered_csv_path"]
 
 # timestamp.txt 불러오기
 def load_tracking_events(timestamp_path):
+    print("Loading timestamp from:", timestamp_path)
     events = []
     with open(timestamp_path, "r") as f:
         for line in f:
+            # print(f"[DEBUG] Line: [{line.strip()}]")
             parts = line.strip().split()
+            # print(f"[DEBUG] Parts: {parts}")   
             if len(parts) == 2:
                 events.append((float(parts[0]), float(parts[1])))
             elif len(parts) == 1:
                 events.append((float(parts[0]), None))
+    # print(f"[DEBUG] Final Events: {events}")   
     return events
 
 # yolo_info_filtered.csv 불러오기
@@ -60,7 +63,7 @@ def sample_timestamps(df, start, end):
     return selected
 
 # n번째 old map, n+1번째 new map에서 이미지 선택
-def select_images(n, debug):
+def select_images(n, csv_path, debug):
     max_interval = config["hyperparameters"]["image_selector_max_interval"]
     df = load_csv(csv_path)
     events = load_tracking_events(timestamp_path)

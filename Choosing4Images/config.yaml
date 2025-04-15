@@ -1,17 +1,11 @@
-file_path:
-  # "/mnt/sda/coex_data/track_fail/result_2025_02_07_104018_aimerfeel/"
-  # "/mnt/sda/coex_data/result_2024_11_22_144140_lifefourcut_3/" # 너무 빨라서 제외
-  # "/mnt/sda/coex_data/track_fail/result_2025_02_07_104112_olens/"
-  # '/mnt/sda/coex_data/result_2025_01_31_120429/' # 거울에 비친 경우 잘 안됨
-  # '/mnt/sda/coex_data/result_2025_02_21_115723_ProjectM_Fail/' # 잘 안되는 경우도 있음
-  # '/mnt/sda/coex_data/result_2025_02_07_104112/' # 중복
-  # '/mnt/sda/coex_data/result_2025_02_21_121807_Crocs_Fail/'
-  # "/mnt/sda/coex_data/result_2025_02_21_122237_Papyrus_Fail/"
-  # "/mnt/sda/coex_data/result_2025_02_21_122611_Ecco_Fail/"
-  "/mnt/sda/coex_data/result_2025_02_21_122902_Clovis_Fail/"
-  
+file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_14_094411"
 
-filtered_csv_path: "/home/youngsun/vslam/corl/Choosing4Images/yolo_info_filtered.csv"
+
+filtered_csv_yolo_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_yolo.csv"
+filtered_csv_ocr_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_ocr.csv"
+
+yolo_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_yolo.txt"
+ocr_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_ocr.txt"
 
 timestamp_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/timestamp.txt'
 
@@ -20,10 +14,9 @@ triangulation_input_path: "/home/youngsun/vslam/corl/Choosing4Images/triangulati
 hyperparameters:
   csv_conf_thresh: 0.1
 
-  firstmap_thresh: 0.5
+  firstmap_thresh: 0.4
   firstmap_min_time_diff: 0.0
   nextmap_thresh: 0.0
   
   image_selector_frames_per_sec: 3
   image_selector_max_interval: 3
-  

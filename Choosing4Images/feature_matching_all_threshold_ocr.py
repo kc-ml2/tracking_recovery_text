@@ -1,6 +1,5 @@
 import itertools
 
-import os
 import cv2
 import pandas as pd
 import yaml
@@ -69,23 +68,13 @@ file_path = config["file_path"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_ocr_path"]
 timestamp_path = config["timestamp_path"]
-timestamp_keep_path = config["timestamp_keep_path"]
 yolo_4images_path = config["ocr_4images_path"]
 
 # 2. load data
 yolo_data_csv = pd.read_csv(csv_path)
 df = load_csv(csv_path)
 
-# 3. save timestamp.txt to separate file for each dataset
-os.makedirs(timestamp_keep_path, exist_ok=True)
-
-case_id = file_path.strip("/")[-1]
-save_path = os.path.join(timestamp_keep_path, f"{case_id}.txt")
-
-with open(timestamp_path, "r") as src, open(save_path, "w") as dst:
-    dst.write(src.read())
-
-# 4. extract each map's selected image lists
+# 3. extract each map's selected image lists
 events = load_tracking_events(timestamp_path)
 n = len(events)
 
@@ -99,10 +88,10 @@ for j in range (n):
     select_newmap_images = select_images(j, csv_path, False)[1]
     select_oldmap_images = select_images(j, csv_path, False)[0]
 
-    # 5. choose 1 best pair in oldmap
+    # 4. choose 1 best pair in oldmap
     best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)
 
-    # 6. extract every sufficient pairs in newmap
+    # 5. extract every sufficient pairs in newmap
     results = []
     for i, (score, match) in enumerate(best_pair_final):
         print(f"\n===== For index {j}: Comparing Firstmap Pair {i+1} with Nextmap... =====")
@@ -110,7 +99,7 @@ for j in range (n):
         if result:
             results.append((score, result))
 
-    # 7. choose 1 best pair in newmap
+    # 6. choose 1 best pair in newmap
     valid_results = [r for r in results if len(r[1]) >= 2]
 
     if valid_results:
@@ -169,7 +158,7 @@ for j in range (n):
         bbox3 = best_result[1][0][6]
         bbox4 = best_result[1][1][7]
 
-        # 8. save informations of selected 4 images for triangulation
+        # 7. save informations of selected 4 images for triangulation
         with open(yolo_4images_path, "a") as f:
             f.write(f"For {j+1}th fail...\n")
             if (((best_result[1][0][0] + best_result[1][1][0]) / 2) > 0.1):
@@ -190,6 +179,4 @@ for j in range (n):
             f.write(f"Cannot choose sufficient 2 images\n")
             f.write("\n")
         print("No targets available for visualization in the results")
-
-
 

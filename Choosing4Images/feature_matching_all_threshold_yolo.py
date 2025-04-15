@@ -76,6 +76,7 @@ df = load_csv(csv_path)
 
 # 3. extract each map's selected image lists
 events = load_tracking_events(timestamp_path)
+# print(f"[DEBUG] Loaded Events: {events}")
 n = len(events)
 
 with open(yolo_4images_path, "w") as f:
@@ -170,7 +171,7 @@ for j in range (n):
                 f.write(f"{best_result[1][1][5]} {bbox4['x1']},{bbox4['y1']},{bbox4['x2']},{bbox4['y2']}\n")
                 f.write("\n")
             else:
-                f.write(f"avg score of 2 images < 0.1\n")
+                f.write(f"Avg score of 2 images < 0.1\n")
                 f.write("\n")
 
     else:
