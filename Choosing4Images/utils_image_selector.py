@@ -63,10 +63,10 @@ def sample_timestamps(df, start, end):
     return selected
 
 # n번째 old map, n+1번째 new map에서 이미지 선택
-def select_images(n, csv_path, debug):
+def select_images(n, csv_path, wanted_timestamp_path, debug):
     max_interval = config["hyperparameters"]["image_selector_max_interval"]
     df = load_csv(csv_path)
-    events = load_tracking_events(timestamp_path)
+    events = load_tracking_events(wanted_timestamp_path)
 
     selected_before = []
     selected_after = []

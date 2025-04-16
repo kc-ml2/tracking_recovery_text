@@ -69,6 +69,7 @@ file_path = config["file_path"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_path"]
 triangulation_input_path = config["triangulation_input_path"]
+timestamp_path = config["timestamp_path"]
 
 # 데이터 불러오기
 yolo_data_csv = pd.read_csv(csv_path)
@@ -76,8 +77,8 @@ df = load_csv(csv_path)
 
 # 두 맵의 선별된 이미지 가져오기
 n = int(input("Enter the index of the desired map: "))
-select_newmap_images = select_images(n, False)[1]
-select_oldmap_images = select_images(n, False)[0]
+select_newmap_images = select_images(n, csv_path, timestamp_path, False)[1]
+select_oldmap_images = select_images(n, csv_path, timestamp_path, False)[0]
 
 # oldmap에서 한 쌍 뽑기
 best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)

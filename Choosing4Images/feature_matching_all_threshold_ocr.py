@@ -85,8 +85,8 @@ with open(yolo_4images_path, "w") as f:
 print (f"number of tracking fail = {n}")
 
 for j in range (n): 
-    select_newmap_images = select_images(j, csv_path, False)[1]
-    select_oldmap_images = select_images(j, csv_path, False)[0]
+    select_newmap_images = select_images(j, csv_path, timestamp_path, False)[1]
+    select_oldmap_images = select_images(j, csv_path, timestamp_path, False)[0]
 
     # 4. choose 1 best pair in oldmap
     best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)

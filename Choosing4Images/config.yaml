@@ -1,20 +1,19 @@
-file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_14_094411"
-
+file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_16_090537/"
+timestamp_saved_path: "/home/youngsun/vslam/corl/AllTimestamp/"
 
 filtered_csv_yolo_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_yolo.csv"
 filtered_csv_ocr_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_ocr.csv"
-
 yolo_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_yolo.txt"
 ocr_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_ocr.txt"
 
-timestamp_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/timestamp.txt'
+timestamp_path: '/home/youngsun/vslam/ORB_SLAM3_release/Examples/timestamp.txt'
 
 triangulation_input_path: "/home/youngsun/vslam/corl/Choosing4Images/triangulation_input.txt"
 
 hyperparameters:
   csv_conf_thresh: 0.1
 
-  firstmap_thresh: 0.4
+  firstmap_thresh: 0.3
   firstmap_min_time_diff: 0.0
   nextmap_thresh: 0.0
   

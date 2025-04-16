@@ -33,19 +33,30 @@ def run_ocr():
         image = cv2.imread(image_path)
         result = ocr.ocr(image_path, cls=True)
 
-        if not result or not result[0]:
-            continue
+        # if not result or not result[0]:
+        #     continue
 
-        for line in result[0]:
-            box, (_, score) = line
-            x1, y1 = box[0]
-            x2, y2 = box[2]
+        # for line in result[0]:
+        #     box, (_, score) = line
+        #     x1, y1 = box[0]
+        #     x2, y2 = box[2]
 
-            save_to_csv(CSV_PATH, file_name, x1, y1, x2, y2, score)
+        #     save_to_csv(CSV_PATH, file_name, x1, y1, x2, y2, score)
 
-            # 시각화 저장
-            x1i, y1i, x2i, y2i = map(int, [x1, y1, x2, y2])
-            cv2.rectangle(image, (x1i, y1i), (x2i, y2i), (0, 255, 0), 2)
+        #     # 시각화 저장
+        #     x1i, y1i, x2i, y2i = map(int, [x1, y1, x2, y2])
+        #     cv2.rectangle(image, (x1i, y1i), (x2i, y2i), (0, 255, 0), 2)
+    
+        if result and result[0]:
+            for line in result[0]:
+                box, (_, score) = line
+                x1, y1 = box[0]
+                x2, y2 = box[2]
+
+                save_to_csv(CSV_PATH, file_name, x1, y1, x2, y2, score)
+
+                x1i, y1i, x2i, y2i = map(int, [x1, y1, x2, y2])
+                cv2.rectangle(image, (x1i, y1i), (x2i, y2i), (0, 255, 0), 2)
 
         save_path = os.path.join(OUTPUT_DIR, file_name)
         cv2.imwrite(save_path, image)
