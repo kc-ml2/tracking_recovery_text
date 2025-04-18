@@ -1,9 +1,10 @@
-txt_input_path: '/home/youngsun/vslam/corl/ConnectingMaps/case8/four_frame_result/0/txt/images.txt'
-txt_parsed_path: '/home/youngsun/vslam/corl/ConnectingMaps/case8/four_frame_result/0/txt/images_parsed.txt'
+txt_input_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/images.txt'
+txt_parsed_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/images_parsed.txt'
 
-firstmap_trajectory_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/Monocular/KeyFrameTrajectory0.txt'
-nextmap_trajectory_path: '/home/youngsun/vslam/ORB_SLAM3/Examples/Monocular/KeyFrameTrajectory1.txt'
+firstmap_trajectory_path: '/mnt/sda/coex_data/short_sequence/result_2025_04_17_104116/mono_result/KeyFrameTrajectory0.txt'
+nextmap_trajectory_path: '/mnt/sda/coex_data/short_sequence/result_2025_04_17_104116/mono_result/KeyFrameTrajectory1.txt'
+firstmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/KeyFrameTrajectory0_new.txt'
+nextmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/KeyFrameTrajectory1_new.txt'
+final_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/KeyFrameTrajectory01_new.txt'
 
-firstmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/case8/four_frame_result/0/txt/KeyFrameTrajectory0_new.txt'
-nextmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/case8/four_frame_result/0/txt/KeyFrameTrajectory1_new.txt'
-final_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/case8/four_frame_result/0/txt/KeyFrameTrajectory01_new.txt'           
+fail_index: 1

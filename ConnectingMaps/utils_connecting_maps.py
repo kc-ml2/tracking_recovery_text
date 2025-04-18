@@ -4,7 +4,7 @@ from scipy.spatial.transform import Rotation as R, Slerp
 def load_image_parsed(file_path):
     data = {}
     with open(file_path, 'r') as file:
-        next(file)  # 헤더 스킵
+        next(file) 
         for line in file:
             parts = line.strip().split()
             image_id = int(parts[0])

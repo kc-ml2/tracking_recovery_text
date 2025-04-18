@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1"
+BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1" # orb1 or orb2
 CONFIG_FILE="/home/youngsun/vslam/corl/ConnectingMaps/config.yaml"
 DATA_LIST=(
     # "result_2025_04_14_092728"
@@ -23,11 +23,18 @@ DATA_LIST=(
     "result_2025_04_16_114908"
     "result_2025_04_16_114954"
 
-
+    "result_2025_04_17_093724"
+    "result_2025_04_17_094054"
+    "result_2025_04_17_095035"
+    "result_2025_04_17_095758"
+    "result_2025_04_17_100354"
+    "result_2025_04_17_101340"
+    "result_2025_04_17_103828"
+    "result_2025_04_17_103941"
+    "result_2025_04_17_104116"
 )
 
 echo "[INFO] Running connecting_maps.py for selected sequences..."
-echo " "
 
 for ID in "${DATA_LIST[@]}"
 do
@@ -35,7 +42,9 @@ do
     TIME_STR=$(echo "$ID" | cut -d'_' -f5)
     ROOT="/mnt/sda/coex_data/short_sequence/$ID" # long or short
 
-    for FAIL_DIR in "$BASE_DIR/$DATE_DIR/$TIME_STR"/yolo/*th/; do
+    echo ""
+
+    for FAIL_DIR in "$BASE_DIR/$DATE_DIR/$TIME_STR"/yolo/*th/; do # yolo or ocr
 
         IDX_NAME=$(basename "$FAIL_DIR")      
         IDX=$(echo "$IDX_NAME" | grep -oP '\d+')
@@ -44,14 +53,13 @@ do
         if [[ -z "$IDX" ]]; then
             echo "Processing $DATE_DIR/$TIME_STR/"
             echo "[ERROR] No Colmap!"
-            echo ""
             continue
         fi
 
         PREV=$((IDX - 1))
         CURR=$((IDX))
 
-        echo "Processing $DATE_DIR/$TIME_STR/$IDX_NAME (Traj $PREV + $CURR)"
+        echo "Processing $DATE_DIR/$TIME_STR/$IDX_NAME"
 
         TXT_DIR="$FAIL_DIR/four_frame_result/0/txt"
         mkdir -p "$TXT_DIR"
@@ -68,7 +76,7 @@ do
 
         # images.txt 없으면 건너뜀
         if [ ! -f "$TXT_INPUT" ]; then
-            echo "[WARN] $TXT_INPUT not found. skipping..."
+            echo "[ERROR] Colmap Failed!"
             continue
         fi
 
