@@ -8,10 +8,10 @@ def load_image_parsed(file_path):
         for line in file:
             parts = line.strip().split()
             image_id = int(parts[0])
-            qw, qx, qy, qz = map(float, parts[1:5])
+            qx, qy, qz, qw = map(float, parts[1:5])
             tx, ty, tz = map(float, parts[5:8])
             timestamp = parts[9]
-            data[image_id] = {"timestamp": timestamp, 'quaternion': [qw, qx, qy, qz], 'translation': [tx, ty, tz]}
+            data[image_id] = {"timestamp": timestamp, 'quaternion': [qx, qy, qz, qw], 'translation': [tx, ty, tz]}
     return data
 
 def load_keyframe_trajectory(file_path):
@@ -22,7 +22,7 @@ def load_keyframe_trajectory(file_path):
             timestamp = float(parts[0])
             tx, ty, tz = map(float, parts[1:4])
             qx, qy, qz, qw = map(float, parts[4:8]) 
-            data.append({'timestamp': timestamp, 'translation': [tx, ty, tz], 'quaternion': [qw, qx, qy, qz]})
+            data.append({'timestamp': timestamp, 'translation': [tx, ty, tz], 'quaternion': [qx, qy, qz, qw]})
     return data
 
 def interpolate_pose(timestamp, trajectory):
@@ -31,6 +31,7 @@ def interpolate_pose(timestamp, trajectory):
         pose = next(p for p in trajectory if p['timestamp'] == timestamp)
 
         # print(" ") # interpolarization debug
+        # print("interpolarization debug")
         # print(pose)
         # print(pose['translation'])
         # print(pose['quaternion'])
@@ -50,6 +51,7 @@ def interpolate_pose(timestamp, trajectory):
         interp_quat = slerp([alpha]).as_quat()[0]
 
         # print(" ") # interpolarization debug
+        # print("interpolarization debug")
         # print(pose1)
         # print(pose2)
         # print(interp_quat.tolist())
@@ -81,7 +83,7 @@ def scale_calibrated_keyframe_trajectory(firstmap_trajectory, scale, output_file
 
     with open(output_file_path, 'w') as file:
         for pose in scaled_firstmap_trajectory:
-            line = f"{pose['timestamp']} {pose['translation'][0]} {pose['translation'][1]} {pose['translation'][2]} {pose['quaternion'][1]} {pose['quaternion'][2]} {pose['quaternion'][3]} {pose['quaternion'][0]}\n"
+            line = f"{pose['timestamp']} {pose['translation'][0]} {pose['translation'][1]} {pose['translation'][2]} {pose['quaternion'][0]} {pose['quaternion'][1]} {pose['quaternion'][2]} {pose['quaternion'][3]}\n"
             file.write(line)
     
     return True
@@ -98,13 +100,13 @@ def transform_and_save_nextmap_trajectory(nextmap_trajectory, R1, t, input_path,
         q_orig = np.array(pose['quaternion'])
 
         q_rotated = (R1 * R.from_quat(q_orig)).as_quat()
-        # t_transformed = R1.append(t_orig) + t
-        t_transformed = t_orig + t
+        t_transformed = R1.apply(t_orig) + t
+        # t_transformed = t_orig + t
 
         line = f"{pose['timestamp']} " + " ".join([
             f"{v:.7f}" for v in [
                 t_transformed[0], t_transformed[1], t_transformed[2],
-                q_rotated[1], q_rotated[2], q_rotated[3], q_rotated[0]
+                q_rotated[0], q_rotated[1], q_rotated[2], q_rotated[3]
             ]
         ]) + "\n"
         transformed_trajectory.append(line)
@@ -114,3 +116,19 @@ def transform_and_save_nextmap_trajectory(nextmap_trajectory, R1, t, input_path,
         file.writelines(transformed_trajectory)
 
     return True
+
+def quaternion_angle_difference(q1, q2):
+    if np.dot(q1, q2) < 0:
+        q2 = [-x for x in q2]
+
+    q1 = R.from_quat(q1)
+    q2 = R.from_quat(q2)
+
+    relative_rotation = q2 * q1.inv()
+    angle = relative_rotation.magnitude()
+    return np.degrees(angle)
+
+def find_nearest_quat_by_timestamp(trajectory, target_ts):
+    times = np.array([pose["timestamp"] for pose in trajectory])
+    idx = np.argmin(np.abs(times - target_ts))
+    return trajectory[idx]["quaternion"]

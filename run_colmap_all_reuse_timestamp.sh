@@ -4,40 +4,40 @@
 > ./Choosing4Images/log_tracking_fail_summary.txt
 
 DATA_LIST=(
-    "result_2025_04_14_092728"
-    "result_2025_04_14_093729"
-    "result_2025_04_14_094840"
-    "result_2025_04_14_101149"
-    "result_2025_04_14_101618"
-    "result_2025_04_16_082550"
-    "result_2025_04_16_084556"
-    "result_2025_04_16_085517"
-    "result_2025_04_16_085911"
-    "result_2025_04_16_090110"
+    # "result_2025_04_14_092728"
+    # "result_2025_04_14_093729"
+    # "result_2025_04_14_094840"
+    # "result_2025_04_14_101149"
+    # "result_2025_04_14_101618"
+    # "result_2025_04_16_082550"
+    # "result_2025_04_16_084556"
+    # "result_2025_04_16_085517"
+    # "result_2025_04_16_085911"
+    # "result_2025_04_16_090110"
 
-    # "result_2025_04_16_111022"
-    # "result_2025_04_16_112744"
-    # "result_2025_04_16_113145"
-    # "result_2025_04_16_113500"
-    # "result_2025_04_16_113932"
-    # "result_2025_04_16_114324"
-    # "result_2025_04_16_114908"
-    # "result_2025_04_16_114954"
+    "result_2025_04_16_111022"
+    "result_2025_04_16_112744"
+    "result_2025_04_16_113145"
+    "result_2025_04_16_113500"
+    "result_2025_04_16_113932"
+    "result_2025_04_16_114324"
+    "result_2025_04_16_114908"
+    "result_2025_04_16_114954"
 
-    # "result_2025_04_17_093724"
-    # "result_2025_04_17_094054"
-    # "result_2025_04_17_095035"
-    # "result_2025_04_17_095758"
-    # "result_2025_04_17_100354"
-    # "result_2025_04_17_101340"
-    # "result_2025_04_17_103828"
-    # "result_2025_04_17_103941"
-    # "result_2025_04_17_104116"
+    "result_2025_04_17_093724"
+    "result_2025_04_17_094054"
+    "result_2025_04_17_095035"
+    "result_2025_04_17_095758"
+    "result_2025_04_17_100354"
+    "result_2025_04_17_101340"
+    "result_2025_04_17_103828"
+    "result_2025_04_17_103941"
+    "result_2025_04_17_104116"
 )
 
 CHOOSING_DIR="/home/youngsun/vslam/corl/Choosing4Images"
 CONNECTING_DIR="/home/youngsun/vslam/corl/ConnectingMaps"
-REAL_DATA_ROOT="/mnt/sda/coex_data/long_sequence" # long or short
+REAL_DATA_ROOT="/mnt/sda/coex_data/short_sequence" # long or short
 CONFIG_FILE="$CHOOSING_DIR/config.yaml"
 
 for ID in "${DATA_LIST[@]}"
@@ -52,7 +52,7 @@ do
 
     DATE_DIR=$(echo "$ID" | cut -d'_' -f2-4 | tr '_' '_')
     TIME_STR=$(echo "$ID" | cut -d'_' -f5)
-    TIMESTAMP_FILE="/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM2/$DATE_DIR/$TIME_STR.txt" # orb1 or orb2
+    TIMESTAMP_FILE="/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM1/$DATE_DIR/$TIME_STR.txt" # orb1 or orb2
     sed -i "s|^timestamp_saved_path:.*|timestamp_saved_path: \"$TIMESTAMP_FILE\"|" "$CONFIG_FILE"
 
     for MODE in "yolo" "ocr"
@@ -74,7 +74,7 @@ do
 
         TXT_FILE="$CHOOSING_DIR/4images_${MODE}.txt"
 
-        mkdir -p "$CONNECTING_DIR/ORB-SLAM2/$DATE_DIR/$TIME_STR/$MODE" # orb1 or orb2
+        mkdir -p "$CONNECTING_DIR/ORB-SLAM1/$DATE_DIR/$TIME_STR/$MODE" # orb1 or orb2
 
         while IFS= read -r line
         do
@@ -91,7 +91,7 @@ do
             fi
 
             if [[ ${#imgs[@]} -eq 4 ]]; then
-                FAIL_DIR="$CONNECTING_DIR/ORB-SLAM2/$DATE_DIR/$TIME_STR/$MODE/${idx}th" # orb1 or orb2
+                FAIL_DIR="$CONNECTING_DIR/ORB-SLAM1/$DATE_DIR/$TIME_STR/$MODE/${idx}th" # orb1 or orb2
                 IMG_OUT="$FAIL_DIR/four_frame_images"
                 RESULT_OUT="$FAIL_DIR/four_frame_result"
 
