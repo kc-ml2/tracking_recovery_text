@@ -4,7 +4,7 @@
 > ./Choosing4Images/log_tracking_fail_summary.txt
 
 DATA_LIST=(
-    # "result_2025_04_14_092728"
+    "result_2025_04_14_092728"
     # "result_2025_04_14_093729"
     # "result_2025_04_14_094840"
     # "result_2025_04_14_101149"
@@ -15,29 +15,29 @@ DATA_LIST=(
     # "result_2025_04_16_085911"
     # "result_2025_04_16_090110"
 
-    "result_2025_04_16_111022"
-    "result_2025_04_16_112744"
-    "result_2025_04_16_113145"
-    "result_2025_04_16_113500"
-    "result_2025_04_16_113932"
-    "result_2025_04_16_114324"
-    "result_2025_04_16_114908"
-    "result_2025_04_16_114954"
+    # "result_2025_04_16_111022"
+    # "result_2025_04_16_112744"
+    # "result_2025_04_16_113145"
+    # "result_2025_04_16_113500"
+    # "result_2025_04_16_113932"
+    # "result_2025_04_16_114324"
+    # "result_2025_04_16_114908"
+    # "result_2025_04_16_114954"
 
-    "result_2025_04_17_093724"
-    "result_2025_04_17_094054"
-    "result_2025_04_17_095035"
-    "result_2025_04_17_095758"
-    "result_2025_04_17_100354"
-    "result_2025_04_17_101340"
-    "result_2025_04_17_103828"
-    "result_2025_04_17_103941"
-    "result_2025_04_17_104116"
+    # "result_2025_04_17_093724"
+    # "result_2025_04_17_094054"
+    # "result_2025_04_17_095035"
+    # "result_2025_04_17_095758"
+    # "result_2025_04_17_100354"
+    # "result_2025_04_17_101340"
+    # "result_2025_04_17_103828"
+    # "result_2025_04_17_103941"
+    # "result_2025_04_17_104116"
 )
 
 CHOOSING_DIR="/home/youngsun/vslam/corl/Choosing4Images"
 CONNECTING_DIR="/home/youngsun/vslam/corl/ConnectingMaps"
-REAL_DATA_ROOT="/mnt/sda/coex_data/short_sequence" # long or short
+REAL_DATA_ROOT="/mnt/sda/coex_data/long_sequence" # long or short
 CONFIG_FILE="$CHOOSING_DIR/config.yaml"
 
 for ID in "${DATA_LIST[@]}"

@@ -1,12 +1,11 @@
 connecting_dir: /home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1
 date_str: '2025_04_14'
 fail_index: 1
-final_trajectory_path: /mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory56_new.txt
-firstmap_new_trajectory_path: /mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory5.txt
-firstmap_trajectory_path: /mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory5.txt
-nextmap_new_trajectory_path: /mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory6.txt
-nextmap_trajectory_path: /mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory6.txt
-
+final_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory89_new.txt'
+firstmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory8_new.txt'
+firstmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory8.txt'
+nextmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory9_new.txt'
+nextmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory9.txt'
 
 root_dir: /mnt/sda/coex_data/long_sequence
 sequences:
@@ -20,7 +19,6 @@ sequences:
 - 7
 - 8
 - 9
-- 10
 time_str: 092728
-txt_input_path: /home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_17/104116/yolo/1th//four_frame_result/0/txt/images.txt
-txt_parsed_path: /home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/6th/four_frame_result/0/txt/images_parsed.txt
+txt_input_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/images.txt'
+txt_parsed_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/images_parsed.txt'

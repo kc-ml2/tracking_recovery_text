@@ -39,7 +39,7 @@ for ID in "${DATA_LIST[@]}"
 do
     DATE_DIR=$(echo "$ID" | cut -d'_' -f2-4 | tr '_' '_')
     TIME_STR=$(echo "$ID" | cut -d'_' -f5)
-    ROOT="/mnt/sda/coex_data/short_sequence/$ID" # long or short
+    ROOT="/mnt/sda/coex_data/long_sequence/$ID" # long or short
 
     echo ""
 
@@ -90,7 +90,7 @@ do
 
         # run parsing and connecting
         python3 /home/youngsun/vslam/corl/ConnectingMaps/txt_parsing.py
-        python3 /home/youngsun/vslam/corl/ConnectingMaps/connecting_maps.py
+        python3 /home/youngsun/vslam/corl/ConnectingMaps/connecting_short_maps.py
     done
 done
 
