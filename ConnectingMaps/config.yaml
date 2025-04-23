@@ -1,24 +1,23 @@
-connecting_dir: /home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1
-date_str: '2025_04_14'
+connecting_dir: /home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2 # orb1 or orb2
 fail_index: 1
-final_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory89_new.txt'
-firstmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory8_new.txt'
-firstmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory8.txt'
-nextmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/KeyFrameTrajectory9_new.txt'
-nextmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/mono_result/KeyFrameTrajectory9.txt'
+final_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2/2025_04_14/092728/yolo/8th//four_frame_result/0/txt/KeyFrameTrajectory0708_new.txt'
+firstmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2/2025_04_14/092728/yolo/8th//four_frame_result/0/txt/KeyFrameTrajectory07_new.txt'
+firstmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/orb2_result/KeyFrameTrajectory07.txt'
+nextmap_new_trajectory_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2/2025_04_14/092728/yolo/8th//four_frame_result/0/txt/KeyFrameTrajectory08_new.txt'
+nextmap_trajectory_path: '/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/orb2_result/KeyFrameTrajectory08.txt'
 
 root_dir: /mnt/sda/coex_data/long_sequence
-sequences:
-- 0
-- 1
-- 2
-- 3
-- 4
-- 5
-- 6
-- 7
-- 8
-- 9
+date_str: 2025_04_14
 time_str: 092728
-txt_input_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/images.txt'
-txt_parsed_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1/2025_04_14/092728/yolo/9th//four_frame_result/0/txt/images_parsed.txt'
+sequences:
+- '00'
+- '01'
+- '02'
+- '03'
+- '04'
+- '05'
+- '06'
+- '07'
+- '08'
+txt_input_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2/2025_04_14/092728/yolo/8th//four_frame_result/0/txt/images.txt'
+txt_parsed_path: '/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2/2025_04_14/092728/yolo/8th//four_frame_result/0/txt/images_parsed.txt'

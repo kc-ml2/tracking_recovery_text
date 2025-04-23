@@ -1,5 +1,5 @@
-file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728"
-timestamp_saved_path: "/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM1/2025_04_14/092728.txt"
+file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_16_085911"
+timestamp_saved_path: "/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM2/2025_04_16/085911.txt"
 
 filtered_csv_yolo_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_yolo.csv"
 filtered_csv_ocr_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_ocr.csv"

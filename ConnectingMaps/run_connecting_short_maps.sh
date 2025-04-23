@@ -1,9 +1,13 @@
 #!/bin/bash
 
-BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1" # orb1 or orb2
+BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2" # orb1 or orb2
 CONFIG_FILE="/home/youngsun/vslam/corl/ConnectingMaps/config.yaml"
 DATA_LIST=(
     "result_2025_04_14_092728"
+    "result_2025_04_16_084556"
+    "result_2025_04_16_085911"
+
+    # "result_2025_04_14_092728"
     # "result_2025_04_14_093729"
     # "result_2025_04_14_094840"
     # "result_2025_04_14_101149"
@@ -55,16 +59,16 @@ do
             continue
         fi
 
-        PREV=$((IDX - 1))
-        CURR=$((IDX))
+        PREV=$(printf "%02d" $((IDX - 1)))
+        CURR=$(printf "%02d" $((IDX)))
 
         echo "Processing $DATE_DIR/$TIME_STR/$IDX_NAME"
 
         TXT_DIR="$FAIL_DIR/four_frame_result/0/txt"
         mkdir -p "$TXT_DIR"
 
-        FIRSTMAP_TRAJ="$ROOT/mono_result/KeyFrameTrajectory${PREV}.txt"
-        NEXTMAP_TRAJ="$ROOT/mono_result/KeyFrameTrajectory${CURR}.txt"
+        FIRSTMAP_TRAJ="$ROOT/orb2_result/KeyFrameTrajectory${PREV}.txt" # mono or orb2
+        NEXTMAP_TRAJ="$ROOT/orb2_result/KeyFrameTrajectory${CURR}.txt" # mono or orb2
 
         FIRSTMAP_NEW="$TXT_DIR/KeyFrameTrajectory${PREV}_new.txt"
         NEXTMAP_NEW="$TXT_DIR/KeyFrameTrajectory${CURR}_new.txt"

@@ -43,8 +43,6 @@ if (len(image_parsed)==4):
     timestamp3 = float(image_parsed[3]["timestamp"].replace(".png", ""))
     timestamp4 = float(image_parsed[4]["timestamp"].replace(".png", ""))
 
-    print(timestamp1)
-
     Q1A_temp, t1A_temp = interpolate_pose(timestamp1, firstmap_trajectory)
     Q2A_temp, t2A_temp = interpolate_pose(timestamp2, firstmap_trajectory)
     Q3C_temp, t3C_temp = interpolate_pose(timestamp3, nextmap_trajectory)
@@ -82,12 +80,12 @@ if (len(image_parsed)==4):
     # print(t2)
 
     # save to trajectory file
-    # scale_calibrated_keyframe_trajectory(firstmap_trajectory, 1, firstmap_new_trajectory_path)
-    # scale_calibrated_keyframe_trajectory(nextmap_trajectory, 1, nextmap_new_trajectory_path)
+    scale_calibrated_keyframe_trajectory(firstmap_trajectory, 1, firstmap_new_trajectory_path)
+    scale_calibrated_keyframe_trajectory(nextmap_trajectory, 1, nextmap_new_trajectory_path)
 
     # 4. change coordinate of nextmap and apply to trajectory file
-    # firstmap_new_trajectory = load_keyframe_trajectory(firstmap_new_trajectory_path)
-    # nextmap_new_trajectory = load_keyframe_trajectory(nextmap_new_trajectory_path)
+    firstmap_new_trajectory = load_keyframe_trajectory(firstmap_new_trajectory_path)
+    nextmap_new_trajectory = load_keyframe_trajectory(nextmap_new_trajectory_path)
 
     Q1A, t1A = interpolate_pose(timestamp1, firstmap_new_trajectory)
     Q2A, t2A = interpolate_pose(timestamp2, firstmap_new_trajectory)
@@ -104,17 +102,17 @@ if (len(image_parsed)==4):
     R1A = R.from_quat(Q1A)
     R2A = R.from_quat(Q2A)
 
-    # RCA = RC3 * R32 * R21 * R1A
-    # RAC = RCA.inv().as_matrix()
+    RCA = RC3 * R32 * R21 * R1A
+    RAC = RCA.inv().as_matrix()
 
-    # R31 = R.from_quat(Q31).inv()      # image3 기준에서 본 image1 
-    # R1A = R.from_quat(Q1A)            # A 기준에서 본 image1
-    # RC3 = R.from_quat(Q3C).inv()      # image3 기준에서 본 C
-    # RCA = RC3 * R31 * R1A
+    R31 = R.from_quat(Q31).inv()      # image3 기준에서 본 image1 
+    R1A = R.from_quat(Q1A)            # A 기준에서 본 image1
+    RC3 = R.from_quat(Q3C).inv()      # image3 기준에서 본 C
+    RCA = RC3 * R31 * R1A
 
-    # RCA = RC3 * R32 * R2A
-    # RAC = RCA.inv().as_matrix()
-    # transform_and_save_nextmap_trajectory(nextmap_new_trajectory, R23, tBA, config["firstmap_new_trajectory_path"], config["final_trajectory_path"])
+    RCA = RC3 * R32 * R2A
+    RAC = RCA.inv().as_matrix()
+    transform_and_save_nextmap_trajectory(nextmap_new_trajectory, R23, tBA, config["firstmap_new_trajectory_path"], config["final_trajectory_path"])
 
 #     # 5. compute angle of 2 maps 
 #     combined_path = config["final_trajectory_path"]
@@ -179,11 +177,11 @@ if (len(image_parsed)==4):
 #     except FileNotFoundError:
 #         print("[WARN] vio_result trajectory file not found.")
 
-# elif (2 in image_parsed and 3 in image_parsed):
-#     print("=== Colmap can well be made for only orb2, orb3 ===")
+elif (2 in image_parsed and 3 in image_parsed):
+    print("=== Colmap can well be made for only orb2, orb3 ===")
 
-# else:
-#     print("[ERROR] Insufficient Colmap!")
+else:
+    print("[ERROR] Insufficient Colmap!")
 
 
 

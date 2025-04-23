@@ -10,9 +10,9 @@ DATA_LIST=(
     # "result_2025_04_14_101149"
     # "result_2025_04_14_101618"
     # "result_2025_04_16_082550"
-    # "result_2025_04_16_084556"
+    "result_2025_04_16_084556"
     # "result_2025_04_16_085517"
-    # "result_2025_04_16_085911"
+    "result_2025_04_16_085911"
     # "result_2025_04_16_090110"
 
     # "result_2025_04_16_111022"
@@ -52,7 +52,7 @@ do
 
     DATE_DIR=$(echo "$ID" | cut -d'_' -f2-4 | tr '_' '_')
     TIME_STR=$(echo "$ID" | cut -d'_' -f5)
-    TIMESTAMP_FILE="/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM1/$DATE_DIR/$TIME_STR.txt" # orb1 or orb2
+    TIMESTAMP_FILE="/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM2/$DATE_DIR/$TIME_STR.txt" # orb1 or orb2
     sed -i "s|^timestamp_saved_path:.*|timestamp_saved_path: \"$TIMESTAMP_FILE\"|" "$CONFIG_FILE"
 
     for MODE in "yolo" "ocr"
@@ -74,7 +74,7 @@ do
 
         TXT_FILE="$CHOOSING_DIR/4images_${MODE}.txt"
 
-        mkdir -p "$CONNECTING_DIR/ORB-SLAM1/$DATE_DIR/$TIME_STR/$MODE" # orb1 or orb2
+        mkdir -p "$CONNECTING_DIR/ORB-SLAM2/$DATE_DIR/$TIME_STR/$MODE" # orb1 or orb2
 
         while IFS= read -r line
         do
@@ -83,7 +83,7 @@ do
             elif [[ $line == Avg* || $line == Cannot* ]]; then
                 ((filtered++))
             elif [[ $line == For*fail* ]]; then
-                idx=$(echo "$line" | grep -oP '\d+')
+                current_idx=$(echo "$line" | grep -oP '\d+')
                 imgs=()
             elif [[ $line == *.png* ]]; then
                 img_file=$(echo "$line" | cut -d' ' -f1)
@@ -91,7 +91,8 @@ do
             fi
 
             if [[ ${#imgs[@]} -eq 4 ]]; then
-                FAIL_DIR="$CONNECTING_DIR/ORB-SLAM1/$DATE_DIR/$TIME_STR/$MODE/${idx}th" # orb1 or orb2
+                idx="$current_idx"
+                FAIL_DIR="$CONNECTING_DIR/ORB-SLAM2/$DATE_DIR/$TIME_STR/$MODE/${idx}th" # orb1 or orb2
                 IMG_OUT="$FAIL_DIR/four_frame_images"
                 RESULT_OUT="$FAIL_DIR/four_frame_result"
 
