@@ -13,7 +13,7 @@ from utils_connecting_maps import (
     find_nearest_quat_by_timestamp
 )
 
-with open("config.yaml", "r", encoding="utf-8") as file:
+with open("config_long.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
 image_parsed_path = config["txt_parsed_path"]
@@ -35,8 +35,8 @@ if (len(image_parsed)==4):
     # 2. Q, t of image1 and 2 at A coordinate, image3 and 4 at B coordinate (interploarization)
     firstmap_trajectory = load_keyframe_trajectory(firstmap_trajectory_path)
     nextmap_trajectory = load_keyframe_trajectory(nextmap_trajectory_path)
-    firstmap_new_trajectory = load_keyframe_trajectory(firstmap_trajectory_path)
-    nextmap_new_trajectory = load_keyframe_trajectory(nextmap_trajectory_path)
+    # firstmap_new_trajectory = load_keyframe_trajectory(firstmap_trajectory_path)
+    # nextmap_new_trajectory = load_keyframe_trajectory(nextmap_trajectory_path)
 
     timestamp1 = float(image_parsed[1]["timestamp"].replace(".png", ""))
     timestamp2 = float(image_parsed[2]["timestamp"].replace(".png", ""))

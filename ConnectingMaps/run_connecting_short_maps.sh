@@ -4,8 +4,8 @@ BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2" # orb1 or orb2
 CONFIG_FILE="/home/youngsun/vslam/corl/ConnectingMaps/config.yaml"
 DATA_LIST=(
     "result_2025_04_14_092728"
-    "result_2025_04_16_084556"
-    "result_2025_04_16_085911"
+    # "result_2025_04_16_084556"
+    # "result_2025_04_16_085911"
 
     # "result_2025_04_14_092728"
     # "result_2025_04_14_093729"

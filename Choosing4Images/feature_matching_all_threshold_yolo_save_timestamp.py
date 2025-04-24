@@ -38,14 +38,10 @@ def compare_all_images(yolo_data, images):
             continue  
         score, match = compare_two_images(yolo_data, img1_file, img2_file, False)
         if match and score >= threshold:
-            # cv2.imshow("crop1", match[4])
-            # cv2.imshow("crop2", match[5])
-            # cv2.waitKey(0)
             score_list.append((score, match))
 
 
     print(f"\nNumber of image pairs with similarity_score ≥ {threshold}: {len(score_list)}")
-    #input("Press Enter to continue... ")
     return score_list
 
 # choose 2 most relevent images compared to best pair

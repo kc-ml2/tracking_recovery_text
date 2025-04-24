@@ -2,15 +2,15 @@ import cv2
 import yaml
 import numpy as np
 
-# config.yaml 파일 로드
+# Load config.yaml
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
-# 경로 설정
+# Set image directory
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
 
-# bbox 기준으로 이미지 crop
+# Crop image based on bbox (optionally with padding)
 def crop_fn(image, x, y, w, h, expand=0):
     h_img, w_img = image.shape[:2]
     x = max(0, x - expand)
@@ -19,13 +19,13 @@ def crop_fn(image, x, y, w, h, expand=0):
     h = min(h + 2 * expand, h_img - y)
     return image[y : y + h, x : x + w]
 
-# ORB 매칭 결과 시각화
+# Visualize ORB feature matching result between two images
 def visualize_matches(img1, img2, kp1, kp2, matches, title="Feature Matching"):
     img_match = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv2.imshow(title, img_match)
     cv2.waitKey(500)
 
-# ORB 매칭 및 유사도 점수 계산
+# ORB feature matching and compute similarity score
 def orb_feature_matching(img1, img2, debug):
     orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
     kp1, des1 = orb.detectAndCompute(img1, None)
@@ -33,21 +33,12 @@ def orb_feature_matching(img1, img2, debug):
 
     if des1 is None or des2 is None:
         if debug == True:
-            print("특징점이 충분하지 않음")
-            #print("img1 des: ", len(des1))
+            print("Not enough keypoints!")
             print("img1 des: ", des1)
             print("img2 des: ", des2)
         return kp1, kp2, None, None, None, 0
     
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-
-    # knn_matches = bf.knnMatch(des1, des2, k=2)
-    # good_matches = []
-    # for m, n in knn_matches:
-    #     if m.distance < 0.75 * n.distance:
-    #         good_matches.append(m)
-    # matches = sorted(good_matches, key=lambda x: x.distance)
-
     matches = bf.match(des1, des2)
     matches = sorted(matches, key=lambda x: x.distance)
 
@@ -64,28 +55,27 @@ def orb_feature_matching(img1, img2, debug):
         similarity_score = match_ratio * inlier_ratio
 
         if (debug==True):
-            print(f"전체 매칭 수: {total_matches}")
-            print(f"Inlier 수 (RANSAC): {inliers}")
-            print(f"정규화된 매칭 비율: {match_ratio:.2f}")
-            print(f"Inlier 비율: {inlier_ratio:.2f}")
-            print(f"유사도 점수: {similarity_score:.4f}\n")
+            print(f"Total matches: {total_matches}")
+            print(f"Inliers (RANSAC): {inliers}")
+            print(f"Normalized match ratio: {match_ratio:.2f}")
+            print(f"Inlier ratio: {inlier_ratio:.2f}")
+            print(f"Similarity score: {similarity_score:.4f}\n")
         return kp1, kp2, matches, des1, des2, similarity_score
     else:
         if (debug==True):
             print("매칭된 특징점 부족")
         return kp1, kp2, matches, des1, des2, 0
 
-# 이미지 두 개를 비교해서 가장 유사한 bbox 쌍 찾기
+# Compare two images and return the bbox pair with the highest similarity
 def compare_two_images(yolo_data, img1_file, img2_file, debug):
     if debug == True:
         print(f"Comparing {img1_file} and {img2_file}")
-    # 원본 이미지 읽어오기
     img1 = cv2.imread(img_dir + img1_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + img2_file, cv2.IMREAD_GRAYSCALE)
-    # bbox 쌍 찾기
+
     bboxes1 = yolo_data[yolo_data["image_filename"] == img1_file].reset_index(drop=True)
     bboxes2 = yolo_data[yolo_data["image_filename"] == img2_file].reset_index(drop=True)
-    highest_score = 0
+    best_score = 0
     best_match = None
     for _, bbox1 in bboxes1.iterrows():
         for _, bbox2 in bboxes2.iterrows():
@@ -96,17 +86,16 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug):
             kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
             if debug==True:
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"two images crop match: {img1_file} vs {img2_file}")
-            if score > highest_score:
-                highest_score = score
+            if score > best_score:
+                best_score = score
                 best_match = (img1_file, img2_file, bbox1, bbox2)
-    return highest_score, best_match
+    return best_score, best_match
 
-# bbox와 이미지를 비교해서 이미지의 가장 유사한 bbox 찾기
+# Compare a fixed bbox with all bboxes in a target image and return the bbox with the highest similarity
 def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, debug):
     img1 = cv2.imread(img_dir + bbox_img_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + target_img_file, cv2.IMREAD_GRAYSCALE)
 
-    # newmap에서 고정된 bbox crop
     x1, y1, x2, y2 = map(int, [bbox["x1"], bbox["y1"], bbox["x2"], bbox["y2"]])
     crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
 

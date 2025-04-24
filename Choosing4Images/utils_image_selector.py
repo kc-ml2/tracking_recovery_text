@@ -2,35 +2,32 @@ import pandas as pd
 import yaml
 from numpy import linspace
 
-# config 파일 로드
+# Load config.yaml
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
 timestamp_path = config["timestamp_path"]
 
-# timestamp.txt 불러오기
+# Load timestamp.txt as list of (fail, relocalization) tuples
 def load_tracking_events(timestamp_path):
     print("Loading timestamp from:", timestamp_path)
     events = []
     with open(timestamp_path, "r") as f:
         for line in f:
-            # print(f"[DEBUG] Line: [{line.strip()}]")
-            parts = line.strip().split()
-            # print(f"[DEBUG] Parts: {parts}")   
+            parts = line.strip().split()   
             if len(parts) == 2:
                 events.append((float(parts[0]), float(parts[1])))
             elif len(parts) == 1:
-                events.append((float(parts[0]), None))
-    # print(f"[DEBUG] Final Events: {events}")   
+                events.append((float(parts[0]), None)) 
     return events
 
-# yolo_info_filtered.csv 불러오기
+# Load filtered YOLO CSV and sort by timestamp
 def load_csv(csv_path):
     df = pd.read_csv(csv_path)
     df["timestamp"] = df["image_filename"].apply(lambda x: float(x.split(".")[0]))
     return df.sort_values("timestamp")
 
-# 주어진 범위에서 timestamp 초당 per_sec개 추출
+# Sample frames at per_sec fps between two timestamps
 def sample_timestamps(df, start, end): 
     per_sec = config["hyperparameters"]["image_selector_frames_per_sec"]
 
@@ -43,7 +40,7 @@ def sample_timestamps(df, start, end):
     if num_samples < 1:
         num_samples = 1
 
-    # 1. 구간 내 timestamp 필터링
+    # Filter timestamps in the given interval
     df["timestamp"] = df["image_filename"].apply(lambda x: float(x.rsplit(".", 1)[0]))
     sub_df = df[(df["timestamp"] >= start) & (df["timestamp"] <= end)].copy()
     sub_df = sub_df.sort_values("timestamp")
@@ -53,7 +50,7 @@ def sample_timestamps(df, start, end):
         print("해당 구간에 이미지 없음")
         return []
 
-    # 2. 고르게 분포된 index 추출
+    # Uniform sampling
     if len(sub_df) <= num_samples:
         selected = sub_df["image_filename"].tolist()
     else:
@@ -62,7 +59,7 @@ def sample_timestamps(df, start, end):
 
     return selected
 
-# n번째 old map, n+1번째 new map에서 이미지 선택
+# Sample frames from old (n) and new (n+1) maps
 def select_images(n, csv_path, wanted_timestamp_path, debug):
     max_interval = config["hyperparameters"]["image_selector_max_interval"]
     df = load_csv(csv_path)
@@ -71,28 +68,25 @@ def select_images(n, csv_path, wanted_timestamp_path, debug):
     selected_before = []
     selected_after = []
 
-    # 현재 이벤트 존재 확인
     if n >= len(events):
-        raise ValueError(f"n={n}은 이벤트 개수 {len(events)}보다 크거나 같음!")
+        raise ValueError(f"n={n} exceeds number of events ({len(events)})")
 
     curr_fail, curr_relocal = events[n]
 
-    # 이전 relocal -> 현재 fail
+    # Before current fail
     if n > 0:
         prev_relocal = events[n - 1][1]
         if prev_relocal is not None:
             selected_before = sample_timestamps(df, max(prev_relocal, curr_fail - 3) , curr_fail)
     else:
-        # events[0]이면: relocal이 없으므로 fail 전 3초 구간
         selected_before = sample_timestamps(df, curr_fail - max_interval, curr_fail)
 
-    # 현재 relocal -> 다음 fail
+    # After current relocalization
     if curr_relocal is not None:
         if n < len(events) - 1:
             next_fail = events[n + 1][0]
             selected_after = sample_timestamps(df, curr_relocal, min(next_fail, curr_relocal + 3))
         else:
-            # 마지막 이벤트면 relocal 이후 3초 구간
             selected_after = sample_timestamps(df, curr_relocal, curr_relocal + max_interval)
 
     if (debug==True):    

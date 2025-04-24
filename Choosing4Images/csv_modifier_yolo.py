@@ -4,12 +4,12 @@ import yaml
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
-# lead .csv file
+# load .csv file
 def load_csv(path_to_csv):
     data = pd.read_csv(path_to_csv)
     return data
 
-# filter rows of conf >= 0.5
+# filter rows of conf >= csv_conf_thresh
 def filter_conf(data):
     return data[data["conf"] >= config["hyperparameters"]["csv_conf_thresh"]]
 

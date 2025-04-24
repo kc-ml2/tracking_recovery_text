@@ -16,7 +16,7 @@ time_str = config["time_str"]
 sequences = config["sequences"]
 connecting_dir = config["connecting_dir"]
 
-traj_base_path = os.path.join(root_dir, f"result_{date_str}_{time_str}", "orb2_result") # mono or orb2
+traj_base_path = os.path.join(root_dir, f"result_{date_str}_{time_str}", "mono_result") # mono or orb2
 out_path = config["out_path"]
 
 # ===========================
@@ -84,9 +84,20 @@ for i in range(1, len(sequences)):
         "four_frame_result", "0", "txt", f"KeyFrameTrajectory{prev_idx}{curr_idx}_new.txt"
     )
 
+    firstmap_new_traj_path = os.path.join(
+        connecting_dir, date_str, time_str, "yolo", f"{int_curr_idx}th",
+        "four_frame_result", "0", "txt", f"KeyFrameTrajectory{prev_idx}_new.txt"
+    )
+
+
+    nextmap_new_traj_path = os.path.join(
+        connecting_dir, date_str, time_str, "yolo", f"{int_curr_idx}th",
+        "four_frame_result", "0", "txt", f"KeyFrameTrajectory{curr_idx}_new.txt"
+    )
+
     # check if we can generate new_txt_path
     image_parsed_txt = os.path.join(
-        connecting_dir, date_str, time_str, "yolo", f"{curr_idx}th",
+        connecting_dir, date_str, time_str, "yolo", f"{int_curr_idx}th",
         "four_frame_result", "0", "txt", "images_parsed.txt"
     )
 
@@ -98,14 +109,14 @@ for i in range(1, len(sequences)):
             # config 업데이트
             config['firstmap_trajectory_path'] = os.path.join(traj_base_path, f"KeyFrameTrajectory{prev_idx}.txt")
             config['nextmap_trajectory_path'] = os.path.join(traj_base_path, f"KeyFrameTrajectory{curr_idx}.txt")
-            # config['firstmap_new_trajectory_path'] = config['firstmap_trajectory_path']
-            # config['nextmap_new_trajectory_path'] = config['nextmap_trajectory_path']
             config['final_trajectory_path'] = new_txt_path
+            config['firstmap_new_trajectory_path'] = firstmap_new_traj_path
+            config['nextmap_new_trajectory_path'] = nextmap_new_traj_path
             config['txt_parsed_path'] = image_parsed_txt
 
-            with open("config.yaml", "w") as fw:
+            with open("config_long.yaml", "w") as fw: # config_long
                 yaml.dump(config, fw)
-
+            
             os.system("python3 connecting_short_maps.py")
 
     if os.path.exists(new_txt_path):
