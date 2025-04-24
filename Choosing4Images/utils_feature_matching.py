@@ -26,8 +26,9 @@ def visualize_matches(img1, img2, kp1, kp2, matches, title="Feature Matching"):
     cv2.waitKey(500)
 
 # ORB feature matching and compute similarity score
-def orb_feature_matching(img1, img2, debug):
-    orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
+def orb_feature_matching(img1, img2, orb, debug):
+    if orb is None:
+        orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
     kp1, des1 = orb.detectAndCompute(img1, None)
     kp2, des2 = orb.detectAndCompute(img2, None)
 
@@ -67,32 +68,42 @@ def orb_feature_matching(img1, img2, debug):
         return kp1, kp2, matches, des1, des2, 0
 
 # Compare two images and return the bbox pair with the highest similarity
-def compare_two_images(yolo_data, img1_file, img2_file, debug):
-    if debug == True:
+def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb):
+    if debug:
         print(f"Comparing {img1_file} and {img2_file}")
-    img1 = cv2.imread(img_dir + img1_file, cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread(img_dir + img2_file, cv2.IMREAD_GRAYSCALE)
+
+    if img1_file not in img_cache:
+        img_cache[img1_file] = cv2.imread(img_dir + img1_file, cv2.IMREAD_GRAYSCALE)
+    if img2_file not in img_cache:
+        img_cache[img2_file] = cv2.imread(img_dir + img2_file, cv2.IMREAD_GRAYSCALE)
+
+    img1 = img_cache[img1_file]
+    img2 = img_cache[img2_file]
 
     bboxes1 = yolo_data[yolo_data["image_filename"] == img1_file].reset_index(drop=True)
     bboxes2 = yolo_data[yolo_data["image_filename"] == img2_file].reset_index(drop=True)
+
     best_score = 0
     best_match = None
+
     for _, bbox1 in bboxes1.iterrows():
+        x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
+        crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
         for _, bbox2 in bboxes2.iterrows():
-            x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
-            crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-            kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
-            if debug==True:
+            kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, orb, debug)
+
+            if debug:
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"two images crop match: {img1_file} vs {img2_file}")
+
             if score > best_score:
                 best_score = score
                 best_match = (img1_file, img2_file, bbox1, bbox2)
     return best_score, best_match
 
 # Compare a fixed bbox with all bboxes in a target image and return the bbox with the highest similarity
-def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, debug):
+def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, orb, debug):
     img1 = cv2.imread(img_dir + bbox_img_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + target_img_file, cv2.IMREAD_GRAYSCALE)
 
@@ -106,7 +117,7 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
     for _, bbox2 in bboxes2.iterrows():
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
+        kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, orb, debug)
         if debug==True:
             visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {bbox_img_file} vs {target_img_file}")
         if score > best_score:

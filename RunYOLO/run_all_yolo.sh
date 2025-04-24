@@ -1,44 +1,29 @@
 #!/bin/bash
 
 ROOTS=(
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_093729/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_094411/"
+# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_093729/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_14_094840/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_095300/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_095731/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_100628/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_14_101149/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_14_101618/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_14_102307/"
-
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_16_082550/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_16_083443/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_16_084556/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_16_085517/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_16_085911/"
 # "/mnt/sda/coex_data/long_sequence/result_2025_04_16_090110/"
-# "/mnt/sda/coex_data/long_sequence/result_2025_04_16_090537/"
 
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_16_111022"
-# "/mnt/sda/coex_data/short_sequence/result_2025_04_16_112744"
-# "/mnt/sda/coex_data/short_sequence/result_2025_04_16_113145"
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_16_113500"
-# "/mnt/sda/coex_data/short_sequence/result_2025_04_16_113932"
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_16_114324"
-# "/mnt/sda/coex_data/short_sequence/result_2025_04_16_114908"
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_16_114954"
-
-
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_093724"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_094054"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_095035"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_095758"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_100354"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_101340"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_103828"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_103941"
-"/mnt/sda/coex_data/short_sequence/result_2025_04_17_104116"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_093724"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_094054"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_095035"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_095758"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_100354"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_101340"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_103941"
+# "/mnt/sda/coex_data/short_sequence/result_2025_04_17_104116"
 )
 
 for ROOT in "${ROOTS[@]}"

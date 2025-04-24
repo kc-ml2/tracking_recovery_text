@@ -22,8 +22,8 @@ from utils_feature_matching import (
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
-# extract every sufficient pairs (time diff > min_time_diff & similarity score > threshold)
-def compare_all_images(yolo_data, images):
+# Extract every sufficient pairs (time diff > min_time_diff & similarity score > threshold)
+def compare_all_images(yolo_data, images, img_cache):
     threshold = config["hyperparameters"]["firstmap_thresh"]
     min_time_diff = config["hyperparameters"]["firstmap_min_time_diff"]
 
@@ -36,7 +36,7 @@ def compare_all_images(yolo_data, images):
 
         if time_diff < min_time_diff:
             continue  
-        score, match = compare_two_images(yolo_data, img1_file, img2_file, False)
+        score, match = compare_two_images(yolo_data, img1_file, img2_file, False, img_cache)
         if match and score >= threshold:
             score_list.append((score, match))
 
@@ -44,7 +44,7 @@ def compare_all_images(yolo_data, images):
     print(f"\nNumber of image pairs with similarity_score ≥ {threshold}: {len(score_list)}")
     return score_list
 
-# choose 2 most relevent images compared to best pair
+# Choose 2 most relevent images compared to best pair
 def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
     thresh = config["hyperparameters"]["nextmap_thresh"]
     img1, img2, box1, box2 = best_pair
@@ -60,7 +60,7 @@ def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
 
     return sorted(scores, key=lambda x: x[0], reverse=True)[:2] if scores else []
 
-# 1. load path
+# 1. Load path
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_yolo_path"]
@@ -68,11 +68,15 @@ timestamp_path = config["timestamp_path"]
 timestamp_saved_path = config["timestamp_saved_path"]
 yolo_4images_path = config["yolo_4images_path"]
 
-# 2. load data
+# 2. Load data
 yolo_data_csv = pd.read_csv(csv_path)
 df = load_csv(csv_path)
 
-# 2.5. save timestamp.txt for later
+# 2-1. Image cache and match cache
+img_cache = {}
+match_checked = set()
+
+# 2.2. Save timestamp.txt for later
 filename = os.path.basename(file_path.rstrip("/"))  
 filename = filename.replace("result_", "")
 date_str = filename.rsplit('_', 1)[0]   
@@ -85,7 +89,7 @@ target_path = os.path.join(target_dir, f"{time_str}.txt")
 with open(timestamp_path, "r") as src, open(target_path, "w") as dst:
     dst.writelines(src.readlines())
 
-# 3. extract each map's selected image lists
+# 3. Extract each map's selected image lists
 events = load_tracking_events(timestamp_path)
 n = len(events)
 
@@ -99,10 +103,10 @@ for j in range (n):
     select_newmap_images = select_images(j, csv_path, timestamp_path, False)[1]
     select_oldmap_images = select_images(j, csv_path, timestamp_path, False)[0]
 
-    # 4. choose 1 best pair in oldmap
-    best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images)
+    # 4. Choose 1 best pair in oldmap
+    best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images, img_cache)
 
-    # 5. extract every sufficient pairs in newmap
+    # 5. Extract every sufficient pairs in newmap
     results = []
     for i, (score, match) in enumerate(best_pair_final):
         print(f"\n===== For index {j}: Comparing Firstmap Pair {i+1} with Nextmap... =====")
@@ -110,7 +114,7 @@ for j in range (n):
         if result:
             results.append((score, result))
 
-    # 6. choose 1 best pair in newmap
+    # 6. Choose 1 best pair in newmap
     valid_results = [r for r in results if len(r[1]) >= 2]
 
     if valid_results:
@@ -169,7 +173,7 @@ for j in range (n):
         bbox3 = best_result[1][0][6]
         bbox4 = best_result[1][1][7]
 
-        # 7. save informations of selected 4 images for triangulation
+        # 7. Save informations of selected 4 images for triangulation
         with open(yolo_4images_path, "a") as f:
             f.write(f"For {j+1}th fail...\n")
             if (((best_result[1][0][0] + best_result[1][1][0]) / 2) > 0.1):
