@@ -1,12 +1,13 @@
 file_path: "/mnt/sda/coex_data/long_sequence/result_2025_04_14_092728"
+
+timestamp_path: '/home/youngsun/vslam/ORB_SLAM3_release/Examples/timestamp.txt'
 timestamp_saved_path: "/home/youngsun/vslam/corl/AllTimestamp/ORB-SLAM1/2025_04_14/092728.txt"
 
 filtered_csv_yolo_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_yolo.csv"
 filtered_csv_ocr_path: "/home/youngsun/vslam/corl/Choosing4Images/info_filtered_ocr.csv"
+
 yolo_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_yolo.txt"
 ocr_4images_path: "/home/youngsun/vslam/corl/Choosing4Images/4images_ocr.txt"
-
-timestamp_path: '/home/youngsun/vslam/ORB_SLAM3_release/Examples/timestamp.txt'
 
 triangulation_input_path: "/home/youngsun/vslam/corl/Choosing4Images/triangulation_input.txt"
 
