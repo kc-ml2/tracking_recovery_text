@@ -1,5 +1,3 @@
-import itertools
-
 import cv2
 import pandas as pd
 import yaml
@@ -14,55 +12,12 @@ from utils_feature_matching import (
     crop_fn,
     visualize_matches,
     orb_feature_matching,
-    compare_two_images,
-    compare_bbox_with_image
+    compare_all_images,
+    compare_best_with_oldmap
 )
 
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
-
-# Extract every sufficient pairs (time diff > min_time_diff & similarity score > threshold)
-def compare_all_images(yolo_data, images, img_cache, orb):
-    threshold = config["hyperparameters"]["firstmap_thresh"]
-    min_time_diff = config["hyperparameters"]["firstmap_min_time_diff"]
-
-    score_list = []
-
-    for img1_file, img2_file in itertools.combinations(images, 2):
-        key = frozenset([img1_file, img2_file])
-        if key in match_checked:
-            continue
-        match_checked.add(key)
-    
-        time1 = float(img1_file.split('.')[0])
-        time2 = float(img2_file.split('.')[0])
-        time_diff = abs(time1 - time2)
-
-        if time_diff < min_time_diff:
-            continue  
-        score, match = compare_two_images(yolo_data, img1_file, img2_file, False, img_cache, orb)
-        if match and score >= threshold:
-            score_list.append((score, match))
-
-
-    print(f"\nNumber of image pairs with similarity_score ≥ {threshold}: {len(score_list)}")
-    return score_list
-
-# Choose 2 most relevent images compared to best pair
-def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
-    thresh = config["hyperparameters"]["nextmap_thresh"]
-    img1, img2, box1, box2 = best_pair
-
-    scores = []
-    for old in oldmap_images:
-        s1, b1 = compare_bbox_with_image(yolo_data, box1, img1, old, orb, False)
-        s2, b2 = compare_bbox_with_image(yolo_data, box2, img2, old, orb, False)
-        if b1 is not None and b2 is not None:
-            avg = (s1 + s2) / 2
-            if avg >= thresh:
-                scores.append((avg, img1, img2, box1, box2, old, b1, b2))
-
-    return sorted(scores, key=lambda x: x[0], reverse=True)[:2] if scores else []
 
 # 1. Load path
 file_path = config["file_path"]

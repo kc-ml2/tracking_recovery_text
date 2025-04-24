@@ -1,5 +1,3 @@
-import itertools
-
 import cv2
 import pandas as pd
 import yaml
@@ -14,78 +12,30 @@ from utils_feature_matching import (
     crop_fn,
     visualize_matches,
     orb_feature_matching,
-    compare_two_images,
-    compare_bbox_with_image
+    compare_all_images,
+    compare_best_with_oldmap
 )
 
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
-# Extract every sufficient pairs (time diff > min_time_diff & similarity score > threshold)
-def compare_all_images(yolo_data, images, img_cache, orb):
-    threshold = config["hyperparameters"]["firstmap_thresh"]
-    min_time_diff = config["hyperparameters"]["firstmap_min_time_diff"]
-
-    score_list = []
-
-    for img1_file, img2_file in itertools.combinations(images, 2):
-        key = frozenset([img1_file, img2_file])
-        if key in match_checked:
-            continue
-        match_checked.add(key)
-    
-        time1 = float(img1_file.split('.')[0])
-        time2 = float(img2_file.split('.')[0])
-        time_diff = abs(time1 - time2)
-
-        if time_diff < min_time_diff:
-            continue  
-        score, match = compare_two_images(yolo_data, img1_file, img2_file, False, img_cache, orb)
-        if match and score >= threshold:
-            score_list.append((score, match))
-
-
-    print(f"\nNumber of image pairs with similarity_score ≥ {threshold}: {len(score_list)}")
-    return score_list
-
-# Choose 2 most relevent images compared to best pair
-def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
-    thresh = config["hyperparameters"]["nextmap_thresh"]
-    img1, img2, box1, box2 = best_pair
-
-    scores = []
-    for old in oldmap_images:
-        s1, b1 = compare_bbox_with_image(yolo_data, box1, img1, old, orb, False)
-        s2, b2 = compare_bbox_with_image(yolo_data, box2, img2, old, orb, False)
-        if b1 is not None and b2 is not None:
-            avg = (s1 + s2) / 2
-            if avg >= thresh:
-                scores.append((avg, img1, img2, box1, box2, old, b1, b2))
-
-    return sorted(scores, key=lambda x: x[0], reverse=True)[:2] if scores else []
-
 # 1. Load path
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
 csv_path = config["filtered_csv_yolo_path"]
-timestamp_path = config["timestamp_saved_path"]
+timestamp_saved_path = config["timestamp_saved_path"]
 yolo_4images_path = config["yolo_4images_path"]
 
 # 2. Load data
 yolo_data_csv = pd.read_csv(csv_path)
 df = load_csv(csv_path)
-orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
 
 # 2-1. Image cache and match cache
 img_cache = {}
 match_checked = set()
 
-# orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
-# orb_cache = {}
-
 # 3. Extract each map's selected image lists
-events = load_tracking_events(timestamp_path)
-
+events = load_tracking_events(timestamp_saved_path)
 n = len(events)
 
 with open(yolo_4images_path, "w") as f:
@@ -95,11 +45,11 @@ with open(yolo_4images_path, "w") as f:
 print (f"number of tracking fail = {n}")
 
 for j in range (n): 
-    select_newmap_images = select_images(j, csv_path, timestamp_path, False)[1]
-    select_oldmap_images = select_images(j, csv_path, timestamp_path, False)[0]
+    select_newmap_images = select_images(j, csv_path, timestamp_saved_path, False)[1]
+    select_oldmap_images = select_images(j, csv_path, timestamp_saved_path, False)[0]
 
     # 4. Choose 1 best pair in oldmap
-    best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images, img_cache, orb)
+    best_pair_final = compare_all_images(yolo_data_csv, select_oldmap_images, img_cache)
 
     # 5. Extract every sufficient pairs in newmap
     results = []
@@ -133,7 +83,7 @@ for j in range (n):
                 x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
                 crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
 
-                kp1, kp2, matches, _, _, _= orb_feature_matching(crop1, crop2, orb, True)
+                kp1, kp2, matches, _, _, _= orb_feature_matching(crop1, crop2, False)
 
                 print(f"\nFirstmap match: {img1_file}, {img2_file} (score: {firstmap_score:.4f})")
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {img1_file} vs {img2_file}")
@@ -148,7 +98,7 @@ for j in range (n):
             crop_old1 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
             crop_img1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
-            kp1, kp2, matches1, _, _, _= orb_feature_matching(crop_img1, crop_old1, orb, True)
+            kp1, kp2, matches1, _, _, _= orb_feature_matching(crop_img1, crop_old1, True)
             visualize_matches(crop_img1, crop_old1, kp1, kp2, matches1, f"Firstmap image1 vs Nextmap image{idx} crop match: {img1_file} vs {old_file}")
 
             # img2 vs old
@@ -156,7 +106,7 @@ for j in range (n):
             crop_old2 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop_img2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-            kp1, kp2, matches2, _, _, _= orb_feature_matching(crop_img2, crop_old2, orb, True)
+            kp1, kp2, matches2, _, _, _= orb_feature_matching(crop_img2, crop_old2, True)
             visualize_matches(crop_img2, crop_old2, kp1, kp2, matches2, f"Firstmap image2  vs Nextmap image{idx} crop match: {img2_file} vs {old_file}")
 
             cv2.imshow(f"Nextmap image{idx}: {old_file}", old)
@@ -189,5 +139,3 @@ for j in range (n):
             f.write(f"Cannot choose sufficient 2 images\n")
             f.write("\n")
         print("No targets available for visualization in the results")
-
-

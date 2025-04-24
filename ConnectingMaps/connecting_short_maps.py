@@ -105,77 +105,77 @@ if (len(image_parsed)==4):
     RCA = RC3 * R32 * R21 * R1A
     RAC = RCA.inv().as_matrix()
 
-    R31 = R.from_quat(Q31).inv()      # image3 기준에서 본 image1 
-    R1A = R.from_quat(Q1A)            # A 기준에서 본 image1
-    RC3 = R.from_quat(Q3C).inv()      # image3 기준에서 본 C
+    R31 = R.from_quat(Q31).inv()      
+    R1A = R.from_quat(Q1A)            
+    RC3 = R.from_quat(Q3C).inv()      
     RCA = RC3 * R31 * R1A
 
     RCA = RC3 * R32 * R2A
     RAC = RCA.inv().as_matrix()
     transform_and_save_nextmap_trajectory(nextmap_new_trajectory, R23, tBA, config["firstmap_new_trajectory_path"], config["final_trajectory_path"])
 
-#     # 5. compute angle of 2 maps 
-#     combined_path = config["final_trajectory_path"]
-#     with open(combined_path, "r") as f:
-#         lines = f.readlines()
+    # 5. compute angle of 2 maps 
+    combined_path = config["final_trajectory_path"]
+    with open(combined_path, "r") as f:
+        lines = f.readlines()
 
-#     if len(lines) >= 2:
-#         # ours-1) B, C
-#         last_line_0 = lines[-len(nextmap_new_trajectory)-1]
-#         first_line_1 = lines[-len(nextmap_new_trajectory)]
+    if len(lines) >= 2:
+        # ours-1) B, C
+        last_line_0 = lines[-len(nextmap_new_trajectory)-1]
+        first_line_1 = lines[-len(nextmap_new_trajectory)]
 
-#         q0 = list(map(float, last_line_0.strip().split()[4:]))
-#         q1 = list(map(float, first_line_1.strip().split()[4:]))
+        q0 = list(map(float, last_line_0.strip().split()[4:]))
+        q1 = list(map(float, first_line_1.strip().split()[4:]))
 
-#         # ours-2) image2, 3
-#         ts2 = float(image_parsed[2]["timestamp"].replace(".png", ""))
-#         ts3 = float(image_parsed[3]["timestamp"].replace(".png", ""))
-#         # print("")
-#         # print(ts2)
-#         # print(ts3)
-#         q0 = interpolate_pose(ts2, firstmap_new_trajectory)[0]
-#         q1 = interpolate_pose(ts3, nextmap_new_trajectory)[0]
+        # ours-2) image2, 3
+        ts2 = float(image_parsed[2]["timestamp"].replace(".png", ""))
+        ts3 = float(image_parsed[3]["timestamp"].replace(".png", ""))
+        # print("")
+        # print(ts2)
+        # print(ts3)
+        q0 = interpolate_pose(ts2, firstmap_new_trajectory)[0]
+        q1 = interpolate_pose(ts3, nextmap_new_trajectory)[0]
 
-#         quat_angle_01 = quaternion_angle_difference(q0, q1)
-#         print(f"Angle of ours: {quat_angle_01:.4f} degrees")
+        quat_angle_01 = quaternion_angle_difference(q0, q1)
+        print(f"Angle of ours: {quat_angle_01:.4f} degrees")
 
-#     vio_traj_path = f"/mnt/sda/coex_data/short_sequence/result_{config['firstmap_trajectory_path'].split('result_')[-1].split('/')[0]}/vio_result/KeyFrameTrajectory.txt"
-#     vio_trajectory = load_keyframe_trajectory(vio_traj_path)
+    vio_traj_path = f"/mnt/sda/coex_data/short_sequence/result_{config['firstmap_trajectory_path'].split('result_')[-1].split('/')[0]}/vio_result/KeyFrameTrajectory.txt"
+    vio_trajectory = load_keyframe_trajectory(vio_traj_path)
 
-#     merged_traj_path = f"/mnt/sda/coex_data/short_sequence/result_{config['firstmap_trajectory_path'].split('result_')[-1].split('/')[0]}/mono_result/trajectory_merged.txt"
-#     merged_trajectory = load_keyframe_trajectory(merged_traj_path)
+    merged_traj_path = f"/mnt/sda/coex_data/short_sequence/result_{config['firstmap_trajectory_path'].split('result_')[-1].split('/')[0]}/mono_result/trajectory_merged.txt"
+    merged_trajectory = load_keyframe_trajectory(merged_traj_path)
 
-#     try:
-#         with open(vio_traj_path, "r") as f:
-#             vio_lines = f.readlines()
-#         # orb3-1) B, C
-#         ts0 = float(firstmap_new_trajectory[-1]["timestamp"])
-#         ts1 = float(nextmap_new_trajectory[0]["timestamp"])
+    try:
+        with open(vio_traj_path, "r") as f:
+            vio_lines = f.readlines()
+        # orb3-1) B, C
+        ts0 = float(firstmap_new_trajectory[-1]["timestamp"])
+        ts1 = float(nextmap_new_trajectory[0]["timestamp"])
 
-#         # # orb3-2) image 2, 3
-#         # ts0 = float(image_parsed[2]["timestamp"].replace(".png", ""))
-#         # ts1 = float(image_parsed[3]["timestamp"].replace(".png", ""))
+        # # orb3-2) image 2, 3
+        # ts0 = float(image_parsed[2]["timestamp"].replace(".png", ""))
+        # ts1 = float(image_parsed[3]["timestamp"].replace(".png", ""))
 
-#         # print("")
-#         # print(ts0)
-#         # print(ts1)
+        # print("")
+        # print(ts0)
+        # print(ts1)
 
-#         q0 = find_nearest_quat_by_timestamp(vio_trajectory, ts0)
-#         q1 = find_nearest_quat_by_timestamp(vio_trajectory, ts1)
+        q0 = find_nearest_quat_by_timestamp(vio_trajectory, ts0)
+        q1 = find_nearest_quat_by_timestamp(vio_trajectory, ts1)
 
-#         quat_angle_vio = quaternion_angle_difference(q0, q1)
-#         print(f"Angle of orb3: {quat_angle_vio:.4f} degrees")
+        quat_angle_vio = quaternion_angle_difference(q0, q1)
+        print(f"Angle of orb3: {quat_angle_vio:.4f} degrees")
 
-#         # orb1
-#         q2 = find_nearest_quat_by_timestamp(merged_trajectory, ts0)
-#         q3 = find_nearest_quat_by_timestamp(merged_trajectory, ts1)
+        # orb1
+        q2 = find_nearest_quat_by_timestamp(merged_trajectory, ts0)
+        q3 = find_nearest_quat_by_timestamp(merged_trajectory, ts1)
 
-#         quat_angle_merged = quaternion_angle_difference(q2, q3)
-#         print(f"Angle of orb1: {quat_angle_merged:.4f} degrees")
+        quat_angle_merged = quaternion_angle_difference(q2, q3)
+        print(f"Angle of orb1: {quat_angle_merged:.4f} degrees")
 
 
-#     except FileNotFoundError:
-#         print("[WARN] vio_result trajectory file not found.")
+    except FileNotFoundError:
+        print("[WARN] vio_result trajectory file not found.")
 
 elif (2 in image_parsed and 3 in image_parsed):
     print("=== Colmap can well be made for only orb2, orb3 ===")

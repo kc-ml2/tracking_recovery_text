@@ -1,3 +1,5 @@
+import itertools
+
 import cv2
 import yaml
 import numpy as np
@@ -19,16 +21,15 @@ def crop_fn(image, x, y, w, h, expand=0):
     h = min(h + 2 * expand, h_img - y)
     return image[y : y + h, x : x + w]
 
-# Visualize ORB feature matching result between two images
+# Visualize ORB feature matching between two images
 def visualize_matches(img1, img2, kp1, kp2, matches, title="Feature Matching"):
     img_match = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv2.imshow(title, img_match)
     cv2.waitKey(500)
 
-# ORB feature matching and compute similarity score
-def orb_feature_matching(img1, img2, orb, debug):
-    if orb is None:
-        orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
+# ORB feature matching and similarity score computation
+def orb_feature_matching(img1, img2, debug):
+    orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
     kp1, des1 = orb.detectAndCompute(img1, None)
     kp2, des2 = orb.detectAndCompute(img2, None)
 
@@ -68,7 +69,7 @@ def orb_feature_matching(img1, img2, orb, debug):
         return kp1, kp2, matches, des1, des2, 0
 
 # Compare two images and return the bbox pair with the highest similarity
-def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb):
+def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache):
     if debug:
         print(f"Comparing {img1_file} and {img2_file}")
 
@@ -92,7 +93,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb):
         for _, bbox2 in bboxes2.iterrows():
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-            kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, orb, debug)
+            kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
 
             if debug:
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"two images crop match: {img1_file} vs {img2_file}")
@@ -103,7 +104,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb):
     return best_score, best_match
 
 # Compare a fixed bbox with all bboxes in a target image and return the bbox with the highest similarity
-def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, orb, debug):
+def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, debug):
     img1 = cv2.imread(img_dir + bbox_img_file, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_dir + target_img_file, cv2.IMREAD_GRAYSCALE)
 
@@ -117,7 +118,7 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, orb
     for _, bbox2 in bboxes2.iterrows():
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-        kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, orb, debug)
+        kp1, kp2, matches, _, _, score = orb_feature_matching(crop1, crop2, debug)
         if debug==True:
             visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {bbox_img_file} vs {target_img_file}")
         if score > best_score:
@@ -125,3 +126,41 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, orb
             best_bbox2 = bbox2
 
     return best_score, best_bbox2
+
+# Extract every image pairs with sufficient time gap and similarity score
+def compare_all_images(yolo_data, images, img_cache):
+    threshold = config["hyperparameters"]["firstmap_thresh"]
+    min_time_diff = config["hyperparameters"]["firstmap_min_time_diff"]
+
+    score_list = []
+
+    for img1_file, img2_file in itertools.combinations(images, 2):
+        time1 = float(img1_file.split('.')[0])
+        time2 = float(img2_file.split('.')[0])
+        time_diff = abs(time1 - time2)
+
+        if time_diff < min_time_diff:
+            continue  
+        score, match = compare_two_images(yolo_data, img1_file, img2_file, False, img_cache)
+        if match and score >= threshold:
+            score_list.append((score, match))
+
+
+    print(f"\nNumber of image pairs with similarity_score ≥ {threshold}: {len(score_list)}")
+    return score_list
+
+# Choose 2 most relevant images compared to the given best pair
+def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images):
+    thresh = config["hyperparameters"]["nextmap_thresh"]
+    img1, img2, box1, box2 = best_pair
+
+    scores = []
+    for old in oldmap_images:
+        s1, b1 = compare_bbox_with_image(yolo_data, box1, img1, old, False)
+        s2, b2 = compare_bbox_with_image(yolo_data, box2, img2, old, False)
+        if b1 is not None and b2 is not None:
+            avg = (s1 + s2) / 2
+            if avg >= thresh:
+                scores.append((avg, img1, img2, box1, box2, old, b1, b2))
+
+    return sorted(scores, key=lambda x: x[0], reverse=True)[:2] if scores else []

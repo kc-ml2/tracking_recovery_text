@@ -62,7 +62,7 @@ do
     sed -i "s|^timestamp_saved_path:.*|timestamp_saved_path: \"$TIMESTAMP_FILE\"|" "$CONFIG_FILE"
 
     # Loop over both 'yolo' and 'ocr' modes
-    for MODE in "yolo" "ocr"
+    for MODE in "yolo" # "ocr"
     do
         echo "▶ [$MODE] Mode for dataset $ID"
 
