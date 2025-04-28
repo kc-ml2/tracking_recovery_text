@@ -10,8 +10,8 @@ ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
 # Paths
 INPUT_DIR = f"{utils.OUTPUT_ROOT}/images"
-OUTPUT_DIR = f"{utils.OUTPUT_ROOT}/OCR/computed_images"
-CSV_PATH = f"{utils.OUTPUT_ROOT}/OCR/ocr_info.csv"
+OUTPUT_DIR = f"{utils.OUTPUT_ROOT}/ocr/computed_images"
+CSV_PATH = f"{utils.OUTPUT_ROOT}/ocr/ocr_info.csv"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -47,7 +47,7 @@ def run_ocr():
                     image,
                     (int(x1), int(y1)),
                     (int(x2), int(y2)),
-                    (0, 255, 0), 2
+                    (0, 255, 0), 8
                 )
 
         cv2.imwrite(os.path.join(OUTPUT_DIR, file_name), image)

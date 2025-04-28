@@ -7,7 +7,7 @@ from utils_connecting_maps import load_keyframe_trajectory, load_image_parsed
 # ===========================
 # 설정 파일 불러오기
 # ===========================
-with open("/home/youngsun/vslam/corl/ConnectingMaps/config_long.yaml", 'r') as f:
+with open("config.yaml", 'r') as f:
     config = yaml.safe_load(f)
 
 root_dir = config["root_dir"]
@@ -114,7 +114,7 @@ for i in range(1, len(sequences)):
             config['nextmap_new_trajectory_path'] = nextmap_new_traj_path
             config['txt_parsed_path'] = image_parsed_txt
 
-            with open("config_long.yaml", "w") as fw: # config_long
+            with open("config.yaml", "w") as fw: # config_long
                 yaml.dump(config, fw)
             
             os.system("python3 connecting_short_maps.py")

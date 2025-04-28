@@ -10,7 +10,7 @@ timestamp_path = config["timestamp_path"]
 
 # Load timestamp.txt as list of (fail, relocalization) tuples
 def load_tracking_events(timestamp_path):
-    print("Loading timestamp from:", timestamp_path)
+    print("\nLoading timestamp from:", timestamp_path)
     events = []
     with open(timestamp_path, "r") as f:
         for line in f:

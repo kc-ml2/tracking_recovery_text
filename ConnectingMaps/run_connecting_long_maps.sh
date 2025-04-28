@@ -1,18 +1,31 @@
 #!/bin/bash
 
-# 데이터 리스트 정의
 DATA_LIST=(
-    "result_2025_04_14_092728"
-    "result_2025_04_16_084556"
-    "result_2025_04_16_085911"
+    # "result_2025_04_14_092728"
+    # "result_2025_04_16_084556"
+    # "result_2025_04_16_085911"
+
+    "result_2025_04_16_111022"
+    "result_2025_04_16_113500"
+    "result_2025_04_16_114324"
+    "result_2025_04_16_114954"
+    "result_2025_04_17_093724"
+    "result_2025_04_17_094054"
+    "result_2025_04_17_095035"
+    "result_2025_04_17_095758"
+    "result_2025_04_17_100354"
+    "result_2025_04_17_101340"
+    "result_2025_04_17_103941"
+    "result_2025_04_17_104116"
 )
 
 CONNECTING_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1" # orb1 or orb2
-ROOT_DIR="/mnt/sda/coex_data/long_sequence"
+ROOT_DIR="/mnt/sda/coex_data/long_sequence" # long or short 
 
 for DATA in "${DATA_LIST[@]}"
 do
-    echo "Processing $DATA..."
+    SECONDS=0
+    echo "▶ Processing dataset $DATA"
     
     DATE_STR=$(echo $DATA | cut -d'_' -f2-4)
     TIME_STR=$(echo $DATA | cut -d'_' -f5)
@@ -24,7 +37,7 @@ do
 
     # 연결 결과 저장 경로 구성
     OUT_PATH="${CONNECTING_DIR}/${DATE_STR}/${TIME_STR}/connected_long.txt"
-    CONFIG_PATH="/home/youngsun/vslam/corl/ConnectingMaps/config_long.yaml"
+    CONFIG_PATH="/home/youngsun/vslam/corl/ConnectingMaps/config.yaml"
 
     # sequences를 YAML 배열 형식으로 변환
     YAML_SEQ=""
@@ -50,6 +63,13 @@ sequences:
 $(echo -e "$YAML_SEQ")
 EOF
 
-    # 파이썬 스크립트 실행
-    python3 /home/youngsun/vslam/corl/ConnectingMaps/connecting_long_maps.py
+#     # 파이썬 스크립트 실행
+#     python3 connecting_long_maps.py
+#         {
+#         echo "$DATA - $MODE"
+#         echo "Total tracking fail: $total"
+#         echo "Filtered out (low score or insufficient): $filtered"
+#         echo "Colmap sparse model failures: $colmap_fail"
+#         echo ""
+#     } >> "$CHOOSING_DIR/log_tracking_fail_summary.txt"
 done

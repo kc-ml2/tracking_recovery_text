@@ -17,6 +17,9 @@ results = our_model(
     conf=utils.CONFIDENCE
 )
 
+for r in results:
+    r.names = {0: "Location Relevant Text"}
+
 # Append detection results to CSV
 def save_to_csv(file_path, filename, x1, y1, x2, y2, conf):
     try:

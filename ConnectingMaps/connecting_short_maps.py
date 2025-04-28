@@ -13,7 +13,7 @@ from utils_connecting_maps import (
     find_nearest_quat_by_timestamp
 )
 
-with open("config_long.yaml", "r", encoding="utf-8") as file:
+with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
 image_parsed_path = config["txt_parsed_path"]
@@ -26,7 +26,7 @@ nextmap_new_trajectory_path = config["nextmap_new_trajectory_path"]
 image_parsed = load_image_parsed(image_parsed_path)
 
 if (len(image_parsed)==4):
-    print("=== Colmap can well be made ===") # long sequence 확인용
+    print("=== Colmap can well be made ===")
     Q1, t1 = np.array([0, 0, 0, 1]), np.array([0, 0, 0])
     Q21, t21 = compute_relative_transformation(image_parsed[1], image_parsed[2])
     Q31, t31 = compute_relative_transformation(image_parsed[1], image_parsed[3])

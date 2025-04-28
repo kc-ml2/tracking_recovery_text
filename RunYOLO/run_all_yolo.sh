@@ -24,6 +24,8 @@ ROOTS=(
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_17_101340"
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_17_103941"
 # "/mnt/sda/coex_data/short_sequence/result_2025_04_17_104116"
+
+"/mnt/sda/coex_data/short_sequence/result_2025_04_28"
 )
 
 for ROOT in "${ROOTS[@]}"

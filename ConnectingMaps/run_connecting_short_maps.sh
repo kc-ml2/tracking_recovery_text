@@ -1,9 +1,14 @@
 #!/bin/bash
 
-BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM2" # orb1 or orb2
+# Initialize log files
+> ./log_time_cost.txt
+
+BASE_DIR="/home/youngsun/vslam/corl/ConnectingMaps/ORB-SLAM1" # orb1 or orb2
 CONFIG_FILE="/home/youngsun/vslam/corl/ConnectingMaps/config.yaml"
+
+# List of dataset IDs (folder names under REAL_DATA_ROOT)
 DATA_LIST=(
-    "result_2025_04_14_092728"
+    # "result_2025_04_14_092728"
     # "result_2025_04_16_084556"
     # "result_2025_04_16_085911"
 
@@ -18,21 +23,16 @@ DATA_LIST=(
     # "result_2025_04_16_085911"
     # "result_2025_04_16_090110"
 
-    # "result_2025_04_16_111022"
-    # "result_2025_04_16_112744"
-    # "result_2025_04_16_113145"
+    "result_2025_04_16_111022"
     # "result_2025_04_16_113500"
-    # "result_2025_04_16_113932"
-    # "result_2025_04_16_114324"
-    # "result_2025_04_16_114908"
-    # "result_2025_04_16_114954"
-    # "result_2025_04_17_093724"
-    # "result_2025_04_17_094054"
+    "result_2025_04_16_114324"
+    "result_2025_04_16_114954"
+    "result_2025_04_17_093724"
+    "result_2025_04_17_094054"
     # "result_2025_04_17_095035"
     # "result_2025_04_17_095758"
-    # "result_2025_04_17_100354"
+    "result_2025_04_17_100354"
     # "result_2025_04_17_101340"
-    # "result_2025_04_17_103828"
     # "result_2025_04_17_103941"
     # "result_2025_04_17_104116"
 )
@@ -41,9 +41,11 @@ echo "[INFO] Running connecting_maps.py for selected sequences..."
 
 for ID in "${DATA_LIST[@]}"
 do
+    start_time=$(date +%s.%N)
+
     DATE_DIR=$(echo "$ID" | cut -d'_' -f2-4 | tr '_' '_')
     TIME_STR=$(echo "$ID" | cut -d'_' -f5)
-    ROOT="/mnt/sda/coex_data/long_sequence/$ID" # long or short
+    ROOT="/mnt/sda/coex_data/short_sequence/$ID" # long or short
 
     echo ""
 
@@ -67,8 +69,8 @@ do
         TXT_DIR="$FAIL_DIR/four_frame_result/0/txt"
         mkdir -p "$TXT_DIR"
 
-        FIRSTMAP_TRAJ="$ROOT/orb2_result/KeyFrameTrajectory${PREV}.txt" # mono or orb2
-        NEXTMAP_TRAJ="$ROOT/orb2_result/KeyFrameTrajectory${CURR}.txt" # mono or orb2
+        FIRSTMAP_TRAJ="$ROOT/mono_result/KeyFrameTrajectory${PREV}.txt" # mono or orb2
+        NEXTMAP_TRAJ="$ROOT/mono_result/KeyFrameTrajectory${CURR}.txt" # mono or orb2
 
         FIRSTMAP_NEW="$TXT_DIR/KeyFrameTrajectory${PREV}_new.txt"
         NEXTMAP_NEW="$TXT_DIR/KeyFrameTrajectory${CURR}_new.txt"
@@ -93,9 +95,18 @@ do
         sed -i "s|^txt_parsed_path:.*|txt_parsed_path: '$TXT_PARSED'|" "$CONFIG_FILE"
 
         # run parsing and connecting
-        python3 /home/youngsun/vslam/corl/ConnectingMaps/txt_parsing.py
-        python3 /home/youngsun/vslam/corl/ConnectingMaps/connecting_short_maps.py
+        python3 txt_parsing.py
+        python3 connecting_short_maps.py
     done
+    end_time=$(date +%s.%N)
+    total_time=$(echo "$end_time - $start_time" | bc)
+    total_time_fmt=$(printf "%.3f" "$total_time")
+
+    {
+        echo "$ID - $MODE"
+        echo "Time cost for connecting 2 maps : ${total_time_fmt} sec"
+        echo ""
+    } >> "./log_time_cost.txt"
 done
 
 

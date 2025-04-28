@@ -4,6 +4,10 @@ import yaml
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
+mode = config["mode"]
+csv_path = f'{config["file_path"]}/{mode}/{"yolo_info.csv" if mode == "yolo" else "ocr_info.csv"}'
+save_path = config[f"filtered_csv_{mode}_path"]
+
 # load .csv file
 def load_csv(path_to_csv):
     data = pd.read_csv(path_to_csv)
@@ -17,16 +21,8 @@ def filter_conf(data):
 def save_filtered_csv(filtered_data, path_to_output):
     filtered_data.to_csv(path_to_output, index=False)
 
-# 1. load paths
-csv_path = config["file_path"] + "/yolo/yolo_info.csv"
-save_path = config["filtered_csv_yolo_path"]
-
-# 2. load .csv file
 df = load_csv(csv_path)
-
-# 3. filtering
 filtered_df = filter_conf(df)
-
-# 4. save to .csv
 save_filtered_csv(filtered_df, save_path)
+
 print(f"Filtered data saved to {save_path}")
