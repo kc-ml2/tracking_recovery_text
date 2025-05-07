@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R, Slerp
 
+# Load poses of selected 4 frames from COLMAP-made local map TXT file
 def load_image_parsed(file_path):
     data = {}
     with open(file_path, 'r') as file:
@@ -12,8 +13,10 @@ def load_image_parsed(file_path):
             tx, ty, tz = map(float, parts[5:8])
             timestamp = parts[9]
             data[image_id] = {"timestamp": timestamp, 'quaternion': [qx, qy, qz, qw], 'translation': [tx, ty, tz]}
+
     return data
 
+# Load poses of oldmap/newmap from input keyframe trajectory TXT file
 def load_keyframe_trajectory(file_path):
     data = []
     with open(file_path, 'r') as file:
@@ -23,20 +26,17 @@ def load_keyframe_trajectory(file_path):
             tx, ty, tz = map(float, parts[1:4])
             qx, qy, qz, qw = map(float, parts[4:8]) 
             data.append({'timestamp': timestamp, 'translation': [tx, ty, tz], 'quaternion': [qx, qy, qz, qw]})
+
     return data
 
+# Interpolate pose(rotation and translation) at a given timestamp from a given trajectory
 def interpolate_pose(timestamp, trajectory):
     times = np.array([pose['timestamp'] for pose in trajectory])
     if timestamp in times:
         pose = next(p for p in trajectory if p['timestamp'] == timestamp)
 
-        # print(" ") # interpolarization debug
-        # print("interpolarization debug")
-        # print(pose)
-        # print(pose['translation'])
-        # print(pose['quaternion'])
-
         return np.array(pose['quaternion']), np.array(pose['translation'])
+    
     else:
         idx = np.searchsorted(times, timestamp)
         if idx == 0 or idx == len(times):
@@ -50,27 +50,18 @@ def interpolate_pose(timestamp, trajectory):
         slerp = Slerp([0, 1], R.from_quat([pose1['quaternion'], pose2['quaternion']]))
         interp_quat = slerp([alpha]).as_quat()[0]
 
-        # print(" ") # interpolarization debug
-        # print("interpolarization debug")
-        # print(pose1)
-        # print(pose2)
-        # print(interp_quat.tolist())
-        # print(interp_trans.tolist())
-
         return np.array(interp_quat.tolist()), np.array(interp_trans.tolist())
-    
+
+# Compute relative rotation and translation from pose1 to pose2
 def compute_relative_transformation(pose1, pose2):
     trans1, quat1 = np.array(pose1['translation']), R.from_quat(pose1['quaternion'])
     trans2, quat2 = np.array(pose2['translation']), R.from_quat(pose2['quaternion'])
     relative_rotation = quat2 * quat1.inv()
     relative_translation = trans2 - trans1
 
-    # print(" ") # debug
-    # print(relative_rotation.as_quat().tolist())
-    # print(relative_translation.tolist())
-
     return np.array(relative_rotation.as_quat().tolist()), np.array(relative_translation.tolist())
 
+# Save scaled trajectory
 def scale_calibrated_keyframe_trajectory(firstmap_trajectory, scale, output_file_path):
     scaled_firstmap_trajectory = []
     for pose in firstmap_trajectory:
@@ -88,6 +79,7 @@ def scale_calibrated_keyframe_trajectory(firstmap_trajectory, scale, output_file
     
     return True
 
+# Save transformed trajectory
 def transform_and_save_nextmap_trajectory(nextmap_trajectory, R1, t, input_path, output_path):
     with open(input_path, 'r') as file:
         original_lines = file.readlines()
@@ -101,7 +93,6 @@ def transform_and_save_nextmap_trajectory(nextmap_trajectory, R1, t, input_path,
 
         q_rotated = (R1 * R.from_quat(q_orig)).as_quat()
         t_transformed = R1.apply(t_orig) + t
-        # t_transformed = t_orig + t
 
         line = f"{pose['timestamp']} " + " ".join([
             f"{v:.7f}" for v in [
@@ -116,19 +107,3 @@ def transform_and_save_nextmap_trajectory(nextmap_trajectory, R1, t, input_path,
         file.writelines(transformed_trajectory)
 
     return True
-
-def quaternion_angle_difference(q1, q2):
-    if np.dot(q1, q2) < 0:
-        q2 = [-x for x in q2]
-
-    q1 = R.from_quat(q1)
-    q2 = R.from_quat(q2)
-
-    relative_rotation = q2 * q1.inv()
-    angle = relative_rotation.magnitude()
-    return np.degrees(angle)
-
-def find_nearest_quat_by_timestamp(trajectory, target_ts):
-    times = np.array([pose["timestamp"] for pose in trajectory])
-    idx = np.argmin(np.abs(times - target_ts))
-    return trajectory[idx]["quaternion"]

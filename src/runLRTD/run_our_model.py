@@ -2,25 +2,27 @@ import csv
 import os
 import time
 from ultralytics import YOLO
-import utils
 
-# Load our YOLO model
-our_model = YOLO("./best.pt")
+# Load our YOLO model trained for Location-Relevant Text Detection (LRTD)
+our_model = YOLO("./LRTD.pt")
+
+# Load key paths and confidence threshold
+INPUT_ROOT = os.environ.get("INPUT_ROOT")
+OUTPUT_ROOT = os.environ.get("OUTPUT_ROOT")
+CONFIDENCE = 0.5
 
 # Run inference
 results = our_model(
-    source=f"{utils.OUTPUT_ROOT}/images",
+    source=f"{INPUT_ROOT}/images",
     save=True,
     show=False,
-    project=f"{utils.OUTPUT_ROOT}/yolo",
+    project=OUTPUT_ROOT,
+    name= "LRTD_images",
     stream=True,
-    conf=utils.CONFIDENCE
+    conf=CONFIDENCE
 )
 
-for r in results:
-    r.names = {0: "Location Relevant Text"}
-
-# Append detection results to CSV
+# Save LRTD results to CSV
 def save_to_csv(file_path, filename, x1, y1, x2, y2, conf):
     try:
         file_path = os.path.expanduser(file_path)
@@ -34,7 +36,7 @@ def save_to_csv(file_path, filename, x1, y1, x2, y2, conf):
     except Exception as e:
         print(f"CSV write error: {e}")
 
-# Extract YOLO predictions and append to CSV
+# Run LRTD and save results
 def run_yolo(results):
     for r in results:
         if not r.boxes:
@@ -42,9 +44,9 @@ def run_yolo(results):
         file_name = os.path.basename(r.path)
         for box in r.boxes.data:
             x1, y1, x2, y2, conf = float(box[0]), float(box[1]), float(box[2]), float(box[3]), float(box[4])
-            save_to_csv(f'{utils.OUTPUT_ROOT}/yolo/yolo_info.csv', file_name, x1, y1, x2, y2, conf)
+            save_to_csv(f'{OUTPUT_ROOT}/LRTD_info.csv', file_name, x1, y1, x2, y2, conf)
 
-# Entry point with timing
+# Perform full LRTD and saving pipeline with timing
 def main():
     start = time.time()
     run_yolo(results)

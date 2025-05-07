@@ -4,7 +4,7 @@ import cv2
 import yaml
 import numpy as np
 
-# Load config.yaml
+# Load config file
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 

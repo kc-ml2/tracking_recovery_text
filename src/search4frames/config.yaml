@@ -1,0 +1,20 @@
+mode: "LRTD"
+
+file_path: "/home/youngsun/vslam/corl//data/example_sequence"
+
+timestamp_path: '/home/youngsun/vslam/ORB_SLAM3_release/Examples/timestamp.txt'
+timestamp_saved_path: "/home/youngsun/vslam/corl//data/example_sequence/orb_result/timestamp.txt"
+
+csv_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/LRTD_info.csv"
+filtered_csv_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/LRTD_filtered_info.csv"
+4images_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/log_4images.txt"
+
+hyperparameters:
+  csv_conf_thresh: 0.1
+
+  firstmap_thresh: 0.3
+  firstmap_min_time_diff: 0.0
+  nextmap_thresh: 0.0
+  
+  image_selector_frames_per_sec: 3
+  image_selector_max_interval: 3

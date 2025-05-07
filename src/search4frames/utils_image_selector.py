@@ -32,7 +32,6 @@ def sample_timestamps(df, start, end):
     per_sec = config["hyperparameters"]["image_selector_frames_per_sec"]
 
     if start >= end:
-        print("시작과 끝이 같거나 잘못됨")
         return []
     
     duration = end - start
@@ -47,7 +46,6 @@ def sample_timestamps(df, start, end):
     sub_df = sub_df.drop_duplicates("image_filename").sort_values("timestamp").reset_index(drop=True)
 
     if sub_df.empty:
-        print("해당 구간에 이미지 없음")
         return []
 
     # Uniform sampling
