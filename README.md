@@ -1,36 +1,41 @@
-# Supplementary Code for CoRL 2025
+# Recovory from Tracking Failure with Location-Relevant Text Detection for Indoor Visual SLAM
 
-**"Recovory from Tracking Failure with Location-Relevant Text Detection for Indoor Visual SLAM"**  
 This repository contains the supplementary code for our CoRL 2025 submission.
 
 ---
 
-## How to Run
+## How to run
 
-### 1. Install Dependencies
+### Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-### 2. Download Sample Dataset
+### Download Sample Dataset
 Due to size limits, sample data is hosted externally.
+Make sure to create the 'data/' and 'results/' directory in this step.
 
 ```bash
-cd ./data
+mkdir data && cd data
 wget https://github.com/kc-ml2/tracking_recovery_text/releases/download/v1.0.0/example_sequence.zip
 unzip example_sequence.zip -d data/
+cd ..
+mkdir results
 ```
 
-### 3. Run the Full Pipeline
+### Execute our program
+The command below runs the full pipeline of our system.
 ```bash
 bash run_all_pipeline.sh
 ```
 This script will sequentially execute:
 
-    runLRTD: Perform LRTD 
+    runLRTD: Perform LRTD on all keyframes
 
-    search4frames: Perform text guided frame search & local map generation
+    search4frames: Text guided frame search & local map generation
 
     alignmaps: Align two maps with local map
+
+    evo_traj: Trajectory comparision between our method and ORB-SLAM
 
 ## Input format
 All inputs should be stored in:
@@ -50,11 +55,11 @@ Should contain:
     ORB-SLAM.txt: 
 
 ## Output format
-All outputs are saved in:
+All outputs will be saved in:
 ```bash
 results/your_sequence_name
 ```
-Should produce:
+Will contain:
 
     COLMAP/:
 
@@ -86,3 +91,5 @@ You can change:
     Thresholds
 
     Output filenames
+
+## License
