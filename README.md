@@ -18,9 +18,8 @@ Make sure to create the 'data/' and 'results/' directory in this step.
 ```bash
 mkdir data && cd data
 gdown https://drive.google.com/uc?id=1tZsYiypBhw_9EdzqTGKThjxZBzSjsgU7
-unzip example_sequence.zip -d data/
-cd ..
-mkdir results
+unzip example_sequence.zip 
+cd .. && mkdir results
 ```
 
 ### 3. Run Full Pipeline
@@ -28,15 +27,15 @@ The command below runs the full pipeline of our system.
 ```bash
 bash run_all_pipeline.sh
 ```
-This script will sequentially execute:
+Will sequentially execute:
 
-    runLRTD - Perform LRTD on all keyframes
+    src/runLRTD - Perform LRTD on all keyframes
 
-    search4frames - Text guided frame search & Local map generation
+    src/search4frames - Text guided frame search & Local map generation
 
-    alignmaps - Align two maps with local map
+    src/alignmaps - Align two maps with local map
 
-    evo_traj - Trajectory comparision between our method and ORB-SLAM
+    evo_traj - Visualize trajectory comparision between our method and ORB-SLAM
 
 ## Input format
 All inputs should be stored in:
