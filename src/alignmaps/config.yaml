@@ -1,18 +1,14 @@
-connecting_dir: /home/youngsun/vslam/corl//src/alignmaps
-final_trajectory_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/KeyFrameTrajectory0102_new.txt
-firstmap_new_trajectory_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/KeyFrameTrajectory01_new.txt
-firstmap_trajectory_path: /home/youngsun/vslam/corl//data/example_sequence/orb_result/KeyFrameTrajectory01.txt
-nextmap_new_trajectory_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/KeyFrameTrajectory02_new.txt
-nextmap_trajectory_path: /home/youngsun/vslam/corl//data/example_sequence/orb_result/KeyFrameTrajectory02.txt
-out_path: /home/youngsun/vslam/corl//results/example_sequence/ORB-SLAM_with_LRTD.txt
-root_dir: /home/youngsun/vslam/corl//data/example_sequence
-root_result_dir: /home/youngsun/vslam/corl//results/example_sequence
+# Paths automatically set by the .sh script
+connecting_dir: 
+final_trajectory_path: 
+firstmap_new_trajectory_path: 
+firstmap_trajectory_path: 
+nextmap_new_trajectory_path: 
+nextmap_trajectory_path: 
+out_path: 
+root_dir: 
+root_result_dir: 
 sequences:
-- '00'
-- '01'
-- '02'
-- '03'
-- '04'
-- '05'
-txt_input_path: ''
-txt_parsed_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/images_parsed.txt
+
+txt_input_path: 
+txt_parsed_path: ''
