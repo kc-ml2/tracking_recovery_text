@@ -94,13 +94,9 @@ for j in range (n):
                 crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
                 x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
                 crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
-
                 kp1, kp2, matches = get_cached_orb_match(img1_file, crop1, bbox1, img2_file, crop2, bbox2, orb, orb_cache, match_cache)
 
                 print(f"\nFirstmap match: {img1_file}, {img2_file} (score: {firstmap_score:.4f})")
-                # visualize_matches(crop1, crop2, kp1, kp2, matches, f"Firstmap crop match: {img1_file} vs {img2_file}")
-                # cv2.imshow(f"Firstmap image {img1_file}", img1)
-                # cv2.imshow(f"Firstmap image {img2_file}", img2)
             
             print(f"\nTop {idx} match: {old_file} (avg score: {avg_score:.4f})")
 
@@ -109,16 +105,12 @@ for j in range (n):
             x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
             crop_img1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
             kp1, kp2, matches1 = get_cached_orb_match(img1_file, crop_img1, bbox1, old_file, crop_old1, old_bbox1, orb, orb_cache, match_cache)
-            # visualize_matches(crop_img1, crop_old1, kp1, kp2, matches1, f"Firstmap image1 vs Nextmap image{idx} crop match: {img1_file} vs {old_file}")
 
             x1, y1, x2, y2 = map(int, [old_bbox2["x1"], old_bbox2["y1"], old_bbox2["x2"], old_bbox2["y2"]])
             crop_old2 = crop_fn(old, x1, y1, x2 - x1, y2 - y1, expand=30)
             x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
             crop_img2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
             kp1, kp2, matches2 = get_cached_orb_match(img2_file, crop_img2, bbox2, old_file, crop_old2, old_bbox2, orb, orb_cache, match_cache)
-            # visualize_matches(crop_img2, crop_old2, kp1, kp2, matches2, f"Firstmap image2  vs Nextmap image{idx} crop match: {img2_file} vs {old_file}")
-            # cv2.imshow(f"Nextmap image{idx}: {old_file}", old)
-            # cv2.waitKey(500)
         
         print("\n4 images for triangulation:")
         print(f"Firstmap: {best_result[1][0][1]}, {best_result[1][0][2]}")

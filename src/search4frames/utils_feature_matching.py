@@ -64,8 +64,6 @@ def orb_feature_matching(img1, img2, debug):
             print(f"Similarity score: {similarity_score:.4f}\n")
         return kp1, kp2, matches, des1, des2, similarity_score
     else:
-        if (debug==True):
-            print("매칭된 특징점 부족")
         return kp1, kp2, matches, des1, des2, 0
 
 # Compare two images and return the bbox pair with the highest similarity
