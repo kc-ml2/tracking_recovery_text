@@ -87,7 +87,7 @@ Should contain:
 ## Results
 Visualized results will appear like below:
 
-![Result](https://drive.google.com/uc?id=1gY0t-x6kvEPfHjWE-E_yzGdqRWgNs1pw)
+![Result](./trajectory_final.png)
 
 ## Configuration
 You can configure:
