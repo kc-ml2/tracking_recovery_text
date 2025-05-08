@@ -8,11 +8,11 @@ import numpy as np
 with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
-# Set image directory
+# Set images directory
 file_path = config["file_path"]
 img_dir = file_path + "/images/"
 
-# Crop image based on bbox (optionally with padding)
+# Crop image by bbox (optionally with padding)
 def crop_fn(image, x, y, w, h, expand=0):
     h_img, w_img = image.shape[:2]
     x = max(0, x - expand)
@@ -29,7 +29,10 @@ def visualize_matches(img1, img2, kp1, kp2, matches, title="Feature Matching"):
 
 # ORB feature matching and similarity score computation
 def orb_feature_matching(img1, img2, debug):
+    # Initialize ORB detector
     orb = cv2.ORB_create(nfeatures=500, scaleFactor=1.1, nlevels=10)
+
+    # Extract ORB keypoints & descriptors from both images
     kp1, des1 = orb.detectAndCompute(img1, None)
     kp2, des2 = orb.detectAndCompute(img2, None)
 
@@ -40,17 +43,24 @@ def orb_feature_matching(img1, img2, debug):
             print("img2 des: ", des2)
         return kp1, kp2, None, None, None, 0
     
+    # Compute ORB descriptor matches (Brute-force matching)
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
     matches = bf.match(des1, des2)
     matches = sorted(matches, key=lambda x: x.distance)
 
+    # Compute score only if enough matches
     if len(matches) > 50:
+        # Extract matched keypoints
         src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+
+        # Estimate homography and obtain inliers based on RANSAC
         _, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
         matches_mask = mask.ravel().tolist()
         total_matches = len(matches)
         inliers = np.sum(matches_mask)
+
+        # Compute similarity score (match_ratio * inlier_ratio)
         min_features = min(len(kp1), len(kp2))
         match_ratio = total_matches / min_features if min_features > 0 else 0
         inlier_ratio = inliers / total_matches if total_matches > 0 else 0
@@ -71,6 +81,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
     if debug:
         print(f"Comparing {img1_file} and {img2_file}")
 
+    # Load and cache images
     if img1_file not in img_cache:
         img_cache[img1_file] = cv2.imread(img_dir + img1_file, cv2.IMREAD_GRAYSCALE)
     if img2_file not in img_cache:
@@ -79,17 +90,21 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
     img1 = img_cache[img1_file]
     img2 = img_cache[img2_file]
 
+    # Retrieve bbox of location-relevant text for each image
     bboxes1 = yolo_data[yolo_data["image_filename"] == img1_file].reset_index(drop=True)
     bboxes2 = yolo_data[yolo_data["image_filename"] == img2_file].reset_index(drop=True)
 
+    # Initialize best matching score
     best_score = 0
     best_match = None
 
+    # Compare each bbox from image1 to each bbox in image2
     for _, bbox1 in bboxes1.iterrows():
         x1, y1, x2, y2 = map(int, [bbox1["x1"], bbox1["y1"], bbox1["x2"], bbox1["y2"]])
         crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
         bbox1_key = f"{img1_file}_{int(bbox1['x1'])}_{int(bbox1['y1'])}_{int(bbox1['x2'])}_{int(bbox1['y2'])}"
 
+        # Extract or reuse ORB features for crop1 from image1
         if bbox1_key not in orb_cache:
             kp1, des1 = orb.detectAndCompute(crop1, None)
             orb_cache[bbox1_key] = (kp1, des1)
@@ -101,6 +116,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
             crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
             bbox2_key = f"{img2_file}_{int(bbox2['x1'])}_{int(bbox2['y1'])}_{int(bbox2['x2'])}_{int(bbox2['y2'])}"
 
+            # Extract or retrieve cached ORB features of crop2 from image2
             if bbox2_key not in orb_cache:
                 kp2, des2 = orb.detectAndCompute(crop2, None)
                 orb_cache[bbox2_key] = (kp2, des2)
@@ -110,21 +126,29 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
             if des1 is None or des2 is None:
                 continue
 
+            # Compute or retrieve cached ORB matches 
             match_key = tuple(sorted([bbox1_key, bbox2_key]))
             if match_key in match_cache:
                 matches, score = match_cache[match_key]
             else:
+                # Compute ORB descriptor matches
                 bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
                 matches = bf.match(des1, des2)
                 matches = sorted(matches, key=lambda x: x.distance)
 
+                # Compute score only if enough matches
                 if len(matches) > 50:
+                    # Extract matched keypoints
                     src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
                     dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+
+                    # Estimate homography and obtain inliers based on RANSAC
                     _, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
                     matches_mask = mask.ravel().tolist()
                     total_matches = len(matches)
                     inliers = np.sum(matches_mask)
+
+                    # Compute similarity score (match_ratio * inlier_ratio)
                     min_features = min(len(kp1), len(kp2))
                     match_ratio = total_matches / min_features if min_features > 0 else 0
                     inlier_ratio = inliers / total_matches if total_matches > 0 else 0
@@ -136,6 +160,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
             if debug:
                 visualize_matches(crop1, crop2, kp1, kp2, matches, f"{img1_file} vs {img2_file}")
 
+            # Update best match
             if score > best_score:
                 best_score = score
                 best_match = (img1_file, img2_file, bbox1, bbox2)
@@ -144,6 +169,7 @@ def compare_two_images(yolo_data, img1_file, img2_file, debug, img_cache, orb, o
 
 # Compare a fixed bbox with all bboxes in a target image and return the bbox with the highest similarity
 def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, debug, img_cache, orb, orb_cache, match_cache):
+    # Load and cache images
     if bbox_img_file not in img_cache:
         img_cache[bbox_img_file] = cv2.imread(img_dir + bbox_img_file, cv2.IMREAD_GRAYSCALE)
     if target_img_file not in img_cache:
@@ -152,25 +178,30 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
     img1 = img_cache[bbox_img_file]
     img2 = img_cache[target_img_file]
 
+    # Crop the fixed bbox from the image
     x1, y1, x2, y2 = map(int, [bbox["x1"], bbox["y1"], bbox["x2"], bbox["y2"]])
     crop1 = crop_fn(img1, x1, y1, x2 - x1, y2 - y1, expand=30)
     bbox1_key = f"{bbox_img_file}_{x1}_{y1}_{x2}_{y2}"
 
+    # Extract or retrieve cached ORB features of the fixed bbox
     if bbox1_key not in orb_cache:
         kp1, des1 = orb.detectAndCompute(crop1, None)
         orb_cache[bbox1_key] = (kp1, des1)
     else:
         kp1, des1 = orb_cache[bbox1_key]
 
+    # Crop all the bboxes from the target image
     bboxes2 = yolo_data[yolo_data["image_filename"] == target_img_file].reset_index(drop=True)
     best_score = 0
     best_bbox2 = None
 
+    # Compare the fixed bbox to every bbox in the target image
     for _, bbox2 in bboxes2.iterrows():
         x1, y1, x2, y2 = map(int, [bbox2["x1"], bbox2["y1"], bbox2["x2"], bbox2["y2"]])
         crop2 = crop_fn(img2, x1, y1, x2 - x1, y2 - y1, expand=30)
         bbox2_key = f"{target_img_file}_{x1}_{y1}_{x2}_{y2}"
 
+        # Extract or retrieve cached ORB features of each bbox in the target image
         if bbox2_key not in orb_cache:
             kp2, des2 = orb.detectAndCompute(crop2, None)
             orb_cache[bbox2_key] = (kp2, des2)
@@ -180,6 +211,7 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
         if des1 is None or des2 is None:
             continue
 
+        # Compute or retrieve cached ORB matches 
         match_key = tuple(sorted([bbox1_key, bbox2_key]))
         if match_key in match_cache:
             matches, score = match_cache[match_key]
@@ -188,13 +220,19 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
             matches = bf.match(des1, des2)
             matches = sorted(matches, key=lambda x: x.distance)
 
+            # Compute score only if enough matches
             if len(matches) > 50:
+                # Extract matched keypoints
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
                 dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+
+                # Estimate homography and obtain inliers based on RANSAC
                 _, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
                 matches_mask = mask.ravel().tolist()
                 total_matches = len(matches)
                 inliers = np.sum(matches_mask)
+
+                # Compute similarity score (match_ratio * inlier_ratio)
                 min_features = min(len(kp1), len(kp2))
                 match_ratio = total_matches / min_features if min_features > 0 else 0
                 inlier_ratio = inliers / total_matches if total_matches > 0 else 0
@@ -206,6 +244,7 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
         if debug:
             visualize_matches(crop1, crop2, kp1, kp2, matches, f"{bbox_img_file} vs {target_img_file}")
 
+        # Update best match
         if score > best_score:
             best_score = score
             best_bbox2 = bbox2
@@ -215,23 +254,28 @@ def compare_bbox_with_image(yolo_data, bbox, bbox_img_file, target_img_file, deb
 
 # Extract every image pairs with sufficient time gap and similarity score
 def compare_all_images(yolo_data, images, img_cache, orb, orb_cache, match_cache):
+    # Load matching score thresholds and the minimum time gap between candidate frames
     threshold = config["hyperparameters"]["firstmap_thresh"]
     min_time_diff = config["hyperparameters"]["firstmap_min_time_diff"]
 
     score_list = []
 
+    # Iterate over all unique image pairs in the map
     for img1_file, img2_file in itertools.combinations(images, 2):
         time1 = float(img1_file.split('.')[0])
         time2 = float(img2_file.split('.')[0])
         time_diff = abs(time1 - time2)
 
+        # Skip if time gap between images is too small
         if time_diff < min_time_diff:
             continue
-
+        
+        # Perform matching & extract matching score between two images
         score, match = compare_two_images(
             yolo_data, img1_file, img2_file, False, img_cache, orb, orb_cache, match_cache
         )
 
+        # Append to result list if matching score is above threshold
         if match and score >= threshold:
             score_list.append((score, match))
 
@@ -241,33 +285,47 @@ def compare_all_images(yolo_data, images, img_cache, orb, orb_cache, match_cache
 
 # Choose 2 most relevant images compared to the given best pair
 def compare_best_with_oldmap(yolo_data, best_pair, oldmap_images, img_cache, orb, orb_cache, match_cache):
+    # Load matching score thresholds
     thresh = config["hyperparameters"]["nextmap_thresh"]
+
+    # Load selected best_pair in newmap
     img1, img2, box1, box2 = best_pair
 
     scores = []
     for old in oldmap_images:
+        # Match each bbox from best_pair to all boxes in oldmap frames
         s1, b1 = compare_bbox_with_image(yolo_data, box1, img1, old, False, img_cache, orb, orb_cache, match_cache)
         s2, b2 = compare_bbox_with_image(yolo_data, box2, img2, old, False, img_cache, orb, orb_cache, match_cache)
+
+        # Keep the result only if average matching score (with best_pair) are above threshold
         if b1 is not None and b2 is not None:
             avg = (s1 + s2) / 2
             if avg >= thresh:
                 scores.append((avg, img1, img2, box1, box2, old, b1, b2))
 
+    # Return top-2 oldmap frames with highest average matching score
     return sorted(scores, key=lambda x: x[0], reverse=True)[:2] if scores else []
 
 def get_cached_orb_match(img1_file, crop1, bbox1, img2_file, crop2, bbox2, orb, orb_cache, match_cache):
+    # Generate unique cache keys
     b1_key = f"{img1_file}_{bbox1['x1']}_{bbox1['y1']}_{bbox1['x2']}_{bbox1['y2']}"
     b2_key = f"{img2_file}_{bbox2['x1']}_{bbox2['y1']}_{bbox2['x2']}_{bbox2['y2']}"
+
+    # Use cached ORB features or compute if missing
     if b1_key not in orb_cache:
         orb_cache[b1_key] = orb.detectAndCompute(crop1, None)
     if b2_key not in orb_cache:
         orb_cache[b2_key] = orb.detectAndCompute(crop2, None)
+
     kp1, des1 = orb_cache[b1_key]
     kp2, des2 = orb_cache[b2_key]
+
+    # Use cached matches if available
     match_key = tuple(sorted([b1_key, b2_key]))
     if match_key in match_cache:
         matches, _ = match_cache[match_key]
     else:
+        # If missing, compute ORB descriptor matches
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         matches = bf.match(des1, des2)
         matches = sorted(matches, key=lambda x: x.distance)
