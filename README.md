@@ -84,7 +84,10 @@ Should contain:
 
 - ORB-SLAM_with_LRTD.txt - Aligned trajectory with LRTD
 
-- 
+## Results
+Visualized results will appear like below:
+
+![Result](https://drive.google.com/file/d/1boEXYdB3eDExO_tB_qSH1SMYy3A3-bq0/view?usp=share_link)
 
 ## Configuration
 You can configure:
