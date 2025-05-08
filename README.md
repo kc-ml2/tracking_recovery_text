@@ -87,7 +87,7 @@ Should contain:
 ## Results
 Visualized results will appear like below:
 
-![Result](https://drive.google.com/file/d/1boEXYdB3eDExO_tB_qSH1SMYy3A3-bq0/view?usp=share_link)
+![Result](https://drive.google.com/uc?id=1boEXYdB3eDExO_tB_qSH1SMYy3A3-bq0)
 
 ## Configuration
 You can configure:
