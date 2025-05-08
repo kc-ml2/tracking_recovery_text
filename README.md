@@ -80,6 +80,7 @@ Should contain:
 
 ## Configuration
 You can configure:
+
     Frame search hyperparameters (by 'src/search4frames/config.yaml')
 
     Data and result paths (by 'env.sh')
