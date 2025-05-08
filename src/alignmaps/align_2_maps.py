@@ -67,7 +67,7 @@ if (len(image_parsed)==4):
     scale_factor = nextmap_scale / firstmap_scale
 
     scale_calibrated_keyframe_trajectory(firstmap_trajectory, 1, firstmap_new_trajectory_path)
-    scale_calibrated_keyframe_trajectory(nextmap_trajectory, 1, nextmap_new_trajectory_path)
+    scale_calibrated_keyframe_trajectory(nextmap_trajectory, scale_factor, nextmap_new_trajectory_path)
 
     # Transform and connect newmap to oldmap using the obtained poses and scale
     firstmap_new_trajectory = load_keyframe_trajectory(firstmap_new_trajectory_path)
