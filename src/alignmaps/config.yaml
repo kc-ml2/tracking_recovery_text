@@ -1,3 +1,4 @@
+# Paths automatically set by the .sh script
 connecting_dir: /home/youngsun/vslam/corl//src/alignmaps
 final_trajectory_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/KeyFrameTrajectory0102_new.txt
 firstmap_new_trajectory_path: /home/youngsun/vslam/corl//results/example_sequence/COLMAP/2th/four_frame_result/0/txt/KeyFrameTrajectory01_new.txt

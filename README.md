@@ -6,36 +6,37 @@ This repository contains the supplementary code for our CoRL 2025 submission.
 
 ## How to run
 
-### Dependencies
+### 1. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-### Download Sample Dataset
+### 2. Download Sample Dataset
 Due to size limits, sample data is hosted externally.
+
 Make sure to create the 'data/' and 'results/' directory in this step.
 
 ```bash
 mkdir data && cd data
-wget https://github.com/kc-ml2/tracking_recovery_text/releases/download/v1.0.0/example_sequence.zip
+gdown https://drive.google.com/uc?id=1tZsYiypBhw_9EdzqTGKThjxZBzSjsgU7
 unzip example_sequence.zip -d data/
 cd ..
 mkdir results
 ```
 
-### Execute our program
+### 3. Run Full Pipeline
 The command below runs the full pipeline of our system.
 ```bash
 bash run_all_pipeline.sh
 ```
 This script will sequentially execute:
 
-    runLRTD: Perform LRTD on all keyframes
+    runLRTD - Perform LRTD on all keyframes
 
-    search4frames: Text guided frame search & local map generation
+    search4frames - Text guided frame search & Local map generation
 
-    alignmaps: Align two maps with local map
+    alignmaps - Align two maps with local map
 
-    evo_traj: Trajectory comparision between our method and ORB-SLAM
+    evo_traj - Trajectory comparision between our method and ORB-SLAM
 
 ## Input format
 All inputs should be stored in:
@@ -44,52 +45,41 @@ data/your_sequence_name
 ```
 Should contain:
 
-    images/: RGB images of the keyframes extracted by ORB-SLAM pipeline
+    images/ - RGB images of keyframes
 
-    orb_result/KeyframeTrakectoryXX.txt: 
+    orb_result/KeyframeTrakectoryXX.txt - Trajectories of built maps
 
-    orb_result/timestamp.txt: relocalization & tracking fail timestamps 
+    orb_result/timestamp.txt - Timestamps of relocalization & tracking fail
 
-    Ground_Truth.txt: 
+    Ground_Truth.txt - Ground truth trajectory 
 
-    ORB-SLAM.txt: 
-
+    ORB-SLAM.txt - Aligned trajectory without LRTD
+ 
 ## Output format
-All outputs will be saved in:
+All outputs will be stored in:
 ```bash
 results/your_sequence_name
 ```
-Will contain:
+Should contain:
 
-    COLMAP/:
+    COLMAP/ -
 
-    LRTD_images/: 
+    LRTD_images/ -
 
-    log_4images.txt
+    log_4images.txt -
 
-    log_colmap.txt
+    log_colmap.txt -
 
-    log_tracking_fail.txt:
+    log_tracking_fail.txt -
 
-    LRTD_filtered_info.csv:
+    LRTD_filtered_info.csv -
 
-    LRTD_info.csv:
+    LRTD_info.csv -
 
-    ORB-SLAM_with_LRTD.txt: 
+    ORB-SLAM_with_LRTD.txt - Aligned trajectory with LRTD
 
 ## Configuration
-Each module has its own config.yaml file:
+You can configure:
+    Frame search hyperparameters (by 'src/search4frames/config.yaml')
 
-    src/search4frames/config.yaml
-
-    src/alignmaps/config.yaml
-
-You can change:
-
-    Dataset paths
-
-    Thresholds
-
-    Output filenames
-
-## License
+    Data and result paths (by 'env.sh')

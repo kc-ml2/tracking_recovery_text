@@ -1,5 +1,4 @@
-mode: "LRTD"
-
+# Paths automatically set by the .sh script
 file_path: "/home/youngsun/vslam/corl//data/example_sequence"
 
 timestamp_path: '/home/youngsun/vslam/ORB_SLAM3_release/Examples/timestamp.txt'
@@ -9,6 +8,8 @@ csv_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/LRTD_info.cs
 filtered_csv_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/LRTD_filtered_info.csv"
 4images_LRTD_path: "/home/youngsun/vslam/corl//results/example_sequence/log_4images.txt"
 
+# Hyperparameter configuration
+mode: "LRTD"
 hyperparameters:
   csv_conf_thresh: 0.1
 
