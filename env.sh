@@ -4,7 +4,7 @@ DATA_LIST=(
 )
 
 # Path configuration
-RUN_DIR="/home/youngsun/vslam/tracking_recovery_text/"
+RUN_DIR="/home/youngsun/vslam/corl/"
 SELECTING_DIR="$RUN_DIR/src/search4frames"
 CONNECTING_DIR="$RUN_DIR/src/alignmaps"
 DATA_DIR="$RUN_DIR/data"

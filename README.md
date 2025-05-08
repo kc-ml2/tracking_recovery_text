@@ -61,20 +61,20 @@ results/your_sequence_name
 ```
 Should contain:
 
-    COLMAP/ -
+    COLMAP/
 
-    LRTD_images/ -
+    LRTD_images/ 
 
-    log_4images.txt -
+    log_4images.txt 
 
-    log_colmap.txt -
+    log_colmap.txt 
 
-    log_tracking_fail.txt -
+    log_tracking_fail.txt 
 
-    LRTD_filtered_info.csv -
+    LRTD_filtered_info.csv 
 
-    LRTD_info.csv -
-
+    LRTD_info.csv 
+    
     ORB-SLAM_with_LRTD.txt - Aligned trajectory with LRTD
 
 ## Configuration

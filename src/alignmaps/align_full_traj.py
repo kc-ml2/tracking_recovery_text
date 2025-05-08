@@ -2,7 +2,7 @@ import os
 import yaml
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from utils_connecting_maps import load_keyframe_trajectory, load_image_parsed
+from utils_aligning_maps import load_keyframe_trajectory, load_image_parsed
 
 # Load config file
 with open("config.yaml", 'r') as f:

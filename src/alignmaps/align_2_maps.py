@@ -2,7 +2,7 @@ import numpy as np
 import yaml
 from scipy.spatial.transform import Rotation as R, Slerp
 
-from utils_connecting_maps import (
+from utils_aligning_maps import (
     load_image_parsed,
     load_keyframe_trajectory,
     interpolate_pose,

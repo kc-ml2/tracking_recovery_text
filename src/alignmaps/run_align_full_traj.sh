@@ -42,7 +42,7 @@ sequences:
 $(echo -e "$YAML_SEQ")
 EOF
 
-    python3 connecting_long_maps.py
+    python3 align_full_traj.py
         {
         echo "$DATA - $MODE"
         echo "Total tracking fail: $total"

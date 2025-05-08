@@ -63,7 +63,7 @@ do
 
         # Extract selected 4 frames & align 2 maps
         python3 txt_parsing.py
-        python3 connecting_short_maps.py
+        python3 align_2_maps.py
     done
 done
 

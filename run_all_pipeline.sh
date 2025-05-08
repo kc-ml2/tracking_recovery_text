@@ -14,10 +14,10 @@ bash run_colmap_all.sh
 
 echo "Step 3: Connecting short maps"
 cd ../alignmaps/
-bash run_connecting_short_maps.sh
+bash run_align_2_maps_all.sh
 
 echo "Step 4: Connecting long maps"
-bash run_connecting_long_maps.sh
+bash run_align_full_traj.sh
 
 echo "Step 5: Evaluating trajectory with evo_traj"
 for ID in "${DATA_LIST[@]}"
