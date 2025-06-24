@@ -1,4 +1,4 @@
-# Recovory from Tracking Failure with Location-Relevant Text Detection for Indoor Visual SLAM
+# Recovery from Tracking Failure with Location-Relevant Text Detection for Indoor Visual SLAM
 
 This repository contains the supplementary code for our CoRL 2025 submission.
 
