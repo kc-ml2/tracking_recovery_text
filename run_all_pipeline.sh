@@ -14,7 +14,7 @@ bash run_colmap_all.sh
 
 echo "Step 3: Connecting short maps"
 cd ../alignmaps/
-bash run_align_2_maps_all.sh
+bash run_align_two_maps_all.sh
 
 echo "Step 4: Connecting long maps"
 bash run_align_full_traj.sh

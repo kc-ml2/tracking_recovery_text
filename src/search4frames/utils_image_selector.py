@@ -1,6 +1,6 @@
+from numpy import linspace
 import pandas as pd
 import yaml
-from numpy import linspace
 
 # Load config.yaml
 with open("config.yaml", "r") as file:
@@ -8,32 +8,38 @@ with open("config.yaml", "r") as file:
 
 timestamp_path = config["timestamp_path"]
 
-# Load timestamp.txt as list of (fail, relocalization) tuples
+
 def load_tracking_events(timestamp_path):
+    """Load timestamp.txt as list of (fail, relocalization) tuples"""
+
     print("\nLoading timestamp from:", timestamp_path)
     events = []
     with open(timestamp_path, "r") as f:
         for line in f:
-            parts = line.strip().split()   
+            parts = line.strip().split()
             if len(parts) == 2:
                 events.append((float(parts[0]), float(parts[1])))
             elif len(parts) == 1:
-                events.append((float(parts[0]), None)) 
+                events.append((float(parts[0]), None))
     return events
 
-# Load filtered YOLO CSV and sort by timestamp
+
 def load_csv(csv_path):
+    """Load filtered YOLO CSV and sort by timestamp"""
+
     df = pd.read_csv(csv_path)
     df["timestamp"] = df["image_filename"].apply(lambda x: float(x.split(".")[0]))
     return df.sort_values("timestamp")
 
-# Sample frames at per_sec fps between two timestamps
-def sample_timestamps(df, start, end): 
+
+def sample_timestamps(df, start, end):
+    """Sample frames at per_sec fps between two timestamps"""
+
     per_sec = config["hyperparameters"]["image_selector_frames_per_sec"]
 
     if start >= end:
         return []
-    
+
     duration = end - start
     num_samples = int(duration * per_sec)
     if num_samples < 1:
@@ -57,8 +63,10 @@ def sample_timestamps(df, start, end):
 
     return selected
 
-# Sample frames from old (n) and new (n+1) maps
+
 def select_images(n, csv_path, wanted_timestamp_path, debug):
+    """Sample frames from old (n) and new (n+1) maps"""
+
     max_interval = config["hyperparameters"]["image_selector_max_interval"]
     df = load_csv(csv_path)
     events = load_tracking_events(wanted_timestamp_path)
@@ -75,7 +83,7 @@ def select_images(n, csv_path, wanted_timestamp_path, debug):
     if n > 0:
         prev_relocal = events[n - 1][1]
         if prev_relocal is not None:
-            selected_before = sample_timestamps(df, max(prev_relocal, curr_fail - 3) , curr_fail)
+            selected_before = sample_timestamps(df, max(prev_relocal, curr_fail - 3), curr_fail)
     else:
         selected_before = sample_timestamps(df, curr_fail - max_interval, curr_fail)
 
@@ -87,7 +95,7 @@ def select_images(n, csv_path, wanted_timestamp_path, debug):
         else:
             selected_after = sample_timestamps(df, curr_relocal, curr_relocal + max_interval)
 
-    if (debug==True):    
+    if debug == True:
         print(f"\nOLD MAP SELECTED: {selected_before}")
         print(f"NEW MAP SELECTED: {selected_after}")
 

@@ -1,12 +1,12 @@
 # Paths automatically set by the .sh script
-file_path: ''
+file_path: "/home/youngsun/vslam/corl/test/tracking_recovery_text/data/example_sequence"
 
 timestamp_path: ''
-timestamp_saved_path: ''
+timestamp_saved_path: "/home/youngsun/vslam/corl/test/tracking_recovery_text/data/example_sequence/orb_result/timestamp.txt"
 
-csv_LRTD_path: ''
-filtered_csv_LRTD_path: ''
-4images_LRTD_path: ''
+csv_LRTD_path: "/home/youngsun/vslam/corl/test/tracking_recovery_text/results/example_sequence/LRTD_info.csv"
+filtered_csv_LRTD_path: "/home/youngsun/vslam/corl/test/tracking_recovery_text/results/example_sequence/LRTD_filtered_info.csv"
+4images_LRTD_path: "/home/youngsun/vslam/corl/test/tracking_recovery_text/results/example_sequence/log_4images.txt"
 
 # Hyperparameter configuration
 mode: "LRTD"

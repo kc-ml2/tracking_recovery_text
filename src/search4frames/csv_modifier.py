@@ -10,18 +10,25 @@ mode = config["mode"]
 csv_path = config[f"csv_{mode}_path"]
 csv_filtered_path = config[f"filtered_csv_{mode}_path"]
 
-# Load LRTD information (bounding box position, confidence score) of selected keyframes
+
 def load_csv(path_to_csv):
+    """Load LRTD information (bounding box position, confidence score) of selected keyframes"""
+
     data = pd.read_csv(path_to_csv)
     return data
 
-# Filter keyframes with sufficient confidence score
+
 def filter_conf(data):
+    """Filter keyframes with sufficient confidence score"""
+
     return data[data["conf"] >= config["hyperparameters"]["csv_conf_thresh"]]
 
-# Save filtered keyframes
+
 def save_filtered_csv(filtered_data, path_to_output):
+    """Save filtered keyframes"""
+
     filtered_data.to_csv(path_to_output, index=False)
+
 
 df = load_csv(csv_path)
 filtered_df = filter_conf(df)

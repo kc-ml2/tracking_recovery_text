@@ -29,8 +29,10 @@ In 'env.sh', set the path below to the absolute path of your code directory.
 RUN_DIR="absolute/path/to/your/code"
 ```
 
-### 4. Run Full Pipeline
+### 4. Run the Full Pipeline
 The command below runs the full pipeline of our system.
+
+This pipeline requires a CUDA-compatible GPU.
 ```bash
 bash run_all_pipeline.sh
 ```
@@ -40,7 +42,7 @@ Will sequentially execute:
 
 - src/search4frames - Text guided frame search & Local map generation
 
-- src/alignmaps - Align two maps with local map
+- src/alignmaps - Align two maps with local map 
 
 - evo_traj - Visualize trajectory comparision between our method and ORB-SLAM
 

@@ -1,15 +1,14 @@
 import numpy as np
-import yaml
 from scipy.spatial.transform import Rotation as R, Slerp
-
 from utils_aligning_maps import (
+    compute_relative_transformation,
+    interpolate_pose,
     load_image_parsed,
     load_keyframe_trajectory,
-    interpolate_pose,
-    compute_relative_transformation,
     scale_calibrated_keyframe_trajectory,
     transform_and_save_nextmap_trajectory,
 )
+import yaml
 
 # Load config file
 with open("config.yaml", "r", encoding="utf-8") as file:
@@ -26,7 +25,7 @@ nextmap_new_trajectory_path = config["nextmap_new_trajectory_path"]
 image_parsed = load_image_parsed(image_parsed_path)
 
 # If poses of 4 frames are well reconstructed by COLMAP, connect oldmap and newmap
-if (len(image_parsed)==4):
+if len(image_parsed) == 4:
     print("=== COLMAP can well be made ===")
 
     # Obtain poses of fi in f1 coordinate
@@ -50,16 +49,16 @@ if (len(image_parsed)==4):
     Q4N_temp, t4N_temp = interpolate_pose(timestamp4, nextmap_trajectory)
 
     # Scale correction of newmap
-    R21_temp = (R.from_quat(Q2O_temp) * R.from_quat(Q1O_temp).inv()).as_matrix() 
+    R21_temp = (R.from_quat(Q2O_temp) * R.from_quat(Q1O_temp).inv()).as_matrix()
     t21_temp = t2O_temp - t1O_temp
     len_t21_temp = np.linalg.norm(t21_temp)
     len_t21 = np.linalg.norm(t21)
     firstmap_scale = len_t21 / len_t21_temp
 
-    R43_temp = (R.from_quat(Q4N_temp) * R.from_quat(Q3N_temp).inv()).as_matrix() 
+    R43_temp = (R.from_quat(Q4N_temp) * R.from_quat(Q3N_temp).inv()).as_matrix()
     t43_temp = t4N_temp - t3N_temp
-    R43 = (R.from_quat(Q41) * R.from_quat(Q31).inv()).as_matrix() 
-    t43 = t41-t31
+    R43 = (R.from_quat(Q41) * R.from_quat(Q31).inv()).as_matrix()
+    t43 = t41 - t31
     len_t43_temp = np.linalg.norm(t43_temp)
     len_t43 = np.linalg.norm(t43)
     nextmap_scale = len_t43 / len_t43_temp
@@ -80,20 +79,18 @@ if (len(image_parsed)==4):
 
     QBO, tBO = np.array(firstmap_new_trajectory[-1]["quaternion"]), np.array(firstmap_new_trajectory[-1]["translation"])
 
-    R32 = (R.from_quat(Q31) * R.from_quat(Q21).inv())
-    R23 = R32.inv().as_matrix() #1
+    R32 = R.from_quat(Q31) * R.from_quat(Q21).inv()
+    R23 = R32.inv().as_matrix()  # 1
 
     R13 = R.from_quat(Q31).inv().as_matrix()
-    R3O = R13 @ R.from_quat(Q1O).inv().as_matrix() #2
+    R3O = R13 @ R.from_quat(Q1O).inv().as_matrix()  # 2
 
-    transform_and_save_nextmap_trajectory(nextmap_new_trajectory, R3O, tBO, config["firstmap_new_trajectory_path"], config["final_trajectory_path"])
- 
-elif (2 in image_parsed and 3 in image_parsed):
+    transform_and_save_nextmap_trajectory(
+        nextmap_new_trajectory, R3O, tBO, config["firstmap_new_trajectory_path"], config["final_trajectory_path"]
+    )
+
+elif 2 in image_parsed and 3 in image_parsed:
     print("=== Colmap can well be made for only orb2, orb3 ===")
 
 else:
     print("[ERROR] Insufficient Colmap!")
-
-
-
-
