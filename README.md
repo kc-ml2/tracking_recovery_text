@@ -4,6 +4,19 @@ This repository contains the supplementary code for our CoRL 2025 submission.
 
 ---
 
+## Overview
+This is the overview of our project:
+
+![Overview](./overview.png)
+
+We are proposing failure recovery leveraging location-relevant text detection(LRTD). 
+
+(a) Failure recovery is achieved by utilizing text detection. 
+
+(b) LRTD filters out irrelevant text, enhancing robustness and computational efficiency. 
+
+(c) A dataset generation pipeline is designed to automatically create training data for LRTD.
+
 ## How to run
 
 ### 1. Install Dependencies
