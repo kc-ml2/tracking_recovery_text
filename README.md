@@ -22,7 +22,7 @@ We propose failure recovery leveraging Location-Relevant Text Detection(LRTD).
 ![LRTD](./LRTD.gif)
 
 This is a demo of our main model, Location-Relevant Text Detection(LRTD).\
-LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments in a scene.
+LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments.
 
 ## Results
 
