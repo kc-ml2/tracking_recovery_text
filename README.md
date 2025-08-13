@@ -11,7 +11,7 @@ In this work, we propose an approach for robust failure recovery that leverages 
 
 ![Overview](./overview.png)
 
-We propose failure recovery leveraging Location-Relevant Text Detection(LRTD) 
+We propose failure recovery leveraging Location-Relevant Text Detection(LRTD).
 
 (a) Failure recovery is achieved by utilizing text detection.\
 (b) LRTD filters out irrelevant text, enhancing robustness and computational efficiency.\
@@ -21,7 +21,7 @@ We propose failure recovery leveraging Location-Relevant Text Detection(LRTD)
 
 ![LRTD](./LRTD.gif)
 
-This is a demo of our main model, Location-Relevant Text Detection(LRTD).\ 
+This is a demo of our main model, Location-Relevant Text Detection(LRTD).\
 LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments in a scene.
 
 ## Results
@@ -30,7 +30,7 @@ LRTD is designed to take an image as input and output the bounding boxes of loca
 
 ![RecoveryTable](./tracking_fail_recovery_table.png)
 
-This is our experiment result across different SLAM methods.\ 
+This is our experiment result across different SLAM methods.\
 We observed a remarkable reduction in the number of failures across all three types of SLAM systems.
 
 ### Visualized result
@@ -66,7 +66,7 @@ This project requires Python 3.10+
 pip install -r requirements.txt
 ```
 ### 2. Download Sample Dataset
-Due to size limits, sample data is hosted externally.\  
+Due to size limits, sample data is hosted externally.\
 Make sure to create the 'data/' and 'results/' directory in this step.
 
 ```bash
@@ -83,7 +83,7 @@ RUN_DIR="absolute/path/to/your/code"
 ```
 
 ### 4. Run the Full Pipeline
-The command below runs the full pipeline of our system.\ 
+The command below runs the full pipeline of our system.\
 This pipeline requires a CUDA-compatible GPU.
 ```bash
 bash run_all_pipeline.sh
