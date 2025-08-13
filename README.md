@@ -3,7 +3,7 @@
 ## Overview
 
 ### Motivation
-Camera pose tracking failure is a critical issue in visual SLAM systems.\ 
+Camera pose tracking failure is a critical issue in visual SLAM systems.\
 Although various failure recovery methods have been proposed, they often struggle when the number of shared features before and after the failure is insufficient.\
 In this work, we propose an approach for robust failure recovery that leverages text detection to enhance the reliability of feature matching.
 
