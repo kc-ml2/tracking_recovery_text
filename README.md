@@ -1,10 +1,21 @@
 # Recovery from Tracking Failure with Location-Relevant Text Detection for Indoor Visual SLAM
 
-This repository contains the supplementary code for our CoRL 2025 submission.
-
----
-
 ## Overview
+
+### Motivation
+Camera pose tracking failure is a critical issue in visual SLAM systems. Although various failure recovery methods have been proposed, they often struggle when the number of shared features before and after the failure is insufficient. In this work, we propose an approach for robust failure recovery that leverages text detection to enhance the reliability of feature matching.
+
+### Method
+
+![Overview](./overview.png)
+
+We propose failure recovery leveraging Location-Relevant Text Detection(LRTD) 
+
+(a) Failure recovery is achieved by utilizing text detection. 
+
+(b) LRTD filters out irrelevant text, enhancing robustness and computational efficiency. 
+
+(c) A dataset generation pipeline is designed to automatically create training data for LRTD.
 
 ### LRTD
 
@@ -13,18 +24,6 @@ This repository contains the supplementary code for our CoRL 2025 submission.
 This is a demo of our main model, Location-Relevant Text Detection(LRTD).
 
 LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments in a scene.
-
-### Method
-
-![Overview](./overview.png)
-
-We propose failure recovery leveraging LRTD. 
-
-(a) Failure recovery is achieved by utilizing text detection. 
-
-(b) LRTD filters out irrelevant text, enhancing robustness and computational efficiency. 
-
-(c) A dataset generation pipeline is designed to automatically create training data for LRTD.
 
 ## Results
 
