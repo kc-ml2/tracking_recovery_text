@@ -14,7 +14,7 @@ This is a demo of our main model, Location-Relevant Text Detection(LRTD).
 
 LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments in a scene.
 
-### Methods
+### Method
 
 ![Overview](./overview.png)
 
