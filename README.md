@@ -14,7 +14,7 @@ This is a demo of our main model, Location-Relevant Text Detection(LRTD).
 
 LRTD is designed to take an image as input and output the bounding boxes of location-relevant text segments in a scene.
 
-### Method
+### Methods
 
 ![Overview](./overview.png)
 
@@ -34,13 +34,13 @@ We propose failure recovery leveraging LRTD.
 
 This is our experiment result across different SLAM methods.
 
-we observed a remarkable reduction in the number of failures across all three types of SLAM systems.
+We observed a remarkable reduction in the number of failures across all three types of SLAM systems.
 
-### Visualized results
+### Visualized result
 
 ![Result](./trajectory_final.png)
 
-This represents trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
+This represents a simple example of trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
 
 
 ## Contributors
