@@ -40,7 +40,7 @@ We observed a remarkable reduction in the number of failures across all three ty
 
 ![Result](./trajectory_final.png)
 
-This represents a simple example of trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
+This represents a simple example of trajectory comparison between our proposed method and ORB-SLAM.
 
 
 ## Contributors
