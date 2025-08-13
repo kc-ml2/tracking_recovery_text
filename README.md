@@ -9,7 +9,7 @@ This is the overview of our project:
 
 ![Overview](./overview.png)
 
-We are proposing failure recovery leveraging location-relevant text detection(LRTD). 
+We propose failure recovery leveraging location-relevant text detection(LRTD). 
 
 (a) Failure recovery is achieved by utilizing text detection. 
 
