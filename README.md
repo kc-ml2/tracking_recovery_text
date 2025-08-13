@@ -5,7 +5,7 @@ This repository contains the supplementary code for our CoRL 2025 submission.
 ---
 
 ## Overview
-Demo of our main model, location-relevant text detection(LRTD):
+Below is a demo of our main model, Location-Relevant Text Detection(LRTD):
 
 ![LRTD](./LRTD.gif)
 
@@ -22,19 +22,19 @@ We propose failure recovery leveraging LRTD.
 (c) A dataset generation pipeline is designed to automatically create training data for LRTD.
 
 ## Results
-Visualized result will appear like below:
-
-![Result](./trajectory_final.png)
-
-This represents trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
-
-Evaluation result:
+Evaluation:
 
 ![RecoveryTable](./tracking_fail_recovery_table.png)
 
 This is our experiment result across different SLAM methods.
 
 we observed a remarkable reduction in the number of failures across all three types of SLAM systems.
+
+Visualized results will appear like below:
+
+![Result](./trajectory_final.png)
+
+This represents trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
 
 
 ## Contributors
