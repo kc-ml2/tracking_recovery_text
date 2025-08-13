@@ -5,17 +5,55 @@ This repository contains the supplementary code for our CoRL 2025 submission.
 ---
 
 ## Overview
+Demo of our main model, location-relevant text detection(LRTD):
+
+![LRTD](./LRTD.gif)
+
 This is the overview of our project:
 
 ![Overview](./overview.png)
 
-We propose failure recovery leveraging location-relevant text detection(LRTD). 
+We propose failure recovery leveraging LRTD. 
 
 (a) Failure recovery is achieved by utilizing text detection. 
 
 (b) LRTD filters out irrelevant text, enhancing robustness and computational efficiency. 
 
 (c) A dataset generation pipeline is designed to automatically create training data for LRTD.
+
+## Results
+Visualized result will appear like below:
+
+![Result](./trajectory_final.png)
+
+This represents trajectory comparison between our proposed method and ORB-SLAM using a long sequence case.
+
+Evaluation result:
+
+![RecoveryTable](./tracking_fail_recovery_table.png)
+
+This is our experiment result across different SLAM methods.
+
+we observed a remarkable reduction in the number of failures across all three types of SLAM systems.
+
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/exceldra5"><img src="https://avatars.githubusercontent.com/u/72285259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sooyong Shin</b></sub></a><br /><a href="https://github.com/exceldra5" title="Code"></a></td>
+    <td align="center"><a href="https://github.com/jdudttjs"><img src="https://avatars.githubusercontent.com/u/189965448?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Youngsun Jae</b></sub></a><br /><a href="https://github.com/jdudttjs" title="Code"></a></td>
+    <td align="center"><a href="https://github.com/darthegg"><img src="https://avatars3.githubusercontent.com/u/16010242?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chaehyeuk Lee</b></sub></a><br /><a href="https://github.com/darthegg" title="Code"></a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## How to run
 
@@ -98,11 +136,6 @@ Should contain:
 - LRTD_info.csv 
 
 - ORB-SLAM_with_LRTD.txt - Aligned trajectory with LRTD
-
-## Results
-Visualized results will appear like below:
-
-![Result](./trajectory_final.png)
 
 ## Configuration
 You can configure:
