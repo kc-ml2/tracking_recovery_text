@@ -1,0 +1,14 @@
+# Paths automatically set by the .sh script
+connecting_dir: 
+final_trajectory_path: 
+firstmap_new_trajectory_path: 
+firstmap_trajectory_path: 
+nextmap_new_trajectory_path: 
+nextmap_trajectory_path: 
+out_path: 
+root_dir: 
+root_result_dir: 
+sequences:
+
+txt_input_path: 
+txt_parsed_path: ''

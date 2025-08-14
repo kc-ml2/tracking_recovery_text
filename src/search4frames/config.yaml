@@ -1,0 +1,21 @@
+# Paths automatically set by the .sh script
+file_path: ''
+
+timestamp_path: ''
+timestamp_saved_path: ''
+
+csv_LRTD_path: ''
+filtered_csv_LRTD_path: ''
+4images_LRTD_path: ''
+
+# Hyperparameter configuration
+mode: "LRTD"
+hyperparameters:
+  csv_conf_thresh: 0.1
+
+  firstmap_thresh: 0.3
+  firstmap_min_time_diff: 0.0
+  nextmap_thresh: 0.0
+  
+  image_selector_frames_per_sec: 3
+  image_selector_max_interval: 3
